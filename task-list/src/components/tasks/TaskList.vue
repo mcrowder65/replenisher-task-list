@@ -1,21 +1,21 @@
 <template>
   <div class="task-list">
     <table-header text="Tasks to Complete"/>
-    <tasks :tasks="tasks"/>    
+    <task-table :tasks="tasks"/>
     <action-button/>
   </div>
 </template>
 
 <script>
+import TaskTable from './TaskTable.vue'
 import { TableHeader, ActionButton } from '@/components/elements'
-import { TaskTable } from '@/components/tasks'
 
 export default {
   name: 'TaskList',
   components: {
     'action-button': ActionButton,
     'table-header': TableHeader,
-    'tasks': TaskTable
+    'task-table': TaskTable
   },
   data () {
     return {
