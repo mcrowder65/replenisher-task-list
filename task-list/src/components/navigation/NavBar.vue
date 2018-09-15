@@ -4,7 +4,6 @@
       class="nav-bar"
       mode="horizontal">
       <h2 class="title">Replenisher Task List</h2>
-      <el-menu-item/>
     </el-menu>
   </div>
 </template>
