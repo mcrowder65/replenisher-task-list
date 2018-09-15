@@ -3,4 +3,49 @@ type User {
   email: String! @unique
   password: String!
   name: String!
+  admin: Boolean! @default(value: "false")
+  tasks: [Task!]! @relation(name: "UserTasks")
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
+
+type Template {
+  title: String!
+  description: String!
+  priority: Priority! @default(value: "LOW")
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Task {
+  title: String!
+  description: String!
+  notes: [Note!]! @relation(name: "TaskNotes")
+  user: User! @relation(name: "UserTasks")
+  assigned: Boolean!
+  status: Status! @default(value: "READY")
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Note {
+  title: String!
+  text: String!
+  date: DateTime!
+  task: Task! @relation(name: "TaskNotes")
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum Status {
+  READY
+  STARTED
+  FINISHED
+}
+
