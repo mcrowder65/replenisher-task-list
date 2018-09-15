@@ -5,6 +5,7 @@ import Home from '@/views/Home.vue'
 import Tasks from '@/views/Tasks.vue'
 import Templates from '@/views/Templates.vue'
 import Users from '@/views/Users.vue'
+import Login from '@/views/Login.vue'
 
 Vue.use(Router)
 
@@ -31,6 +32,11 @@ export default new Router({
           component: Users
         }
       ]
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: Login
     }
   ]
 })
