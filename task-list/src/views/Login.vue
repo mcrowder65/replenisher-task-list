@@ -11,15 +11,15 @@
               <div slot="header" class="clearfix">
                 <span>Welcome!</span>
               </div>
-              <el-form label-width="120px">
-                <el-form-item label="Email">
-                  <el-input type="text" v-model="email" autocomplete="off"></el-input>
+              <el-form label-width="120px" >
+                <el-form-item label="Email" :error="error">
+                  <el-input type="text" v-model="email" autocomplete="off" @focus="clearError"></el-input>
                 </el-form-item>
-                <el-form-item label="Password">
-                  <el-input type="password" v-model="password" autocomplete="off"></el-input>
+                <el-form-item label="Password" :error="error">
+                  <el-input type="password" v-model="password" autocomplete="off" @focus="clearError"></el-input>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary">Login</el-button>
+                  <el-button type="primary" @click.native="login">Login</el-button>
                 </el-form-item>
               </el-form>
             </el-card>
@@ -32,6 +32,16 @@
 
 <script>
 import { NavBar } from '@/components/navigation'
+import gql from 'graphql-tag'
+import cookie from 'js-cookie'
+
+const loginMutation = gql`
+  mutation login($email: String!, $password: String!) {
+    login(email: $email, password: $password) {
+      token
+    }
+  }
+`
 export default {
   name: 'LoginView',
   components: {
@@ -40,7 +50,31 @@ export default {
   data () {
     return {
       email: '',
-      password: ''
+      password: '',
+      error: '',
+    }
+  },
+  methods: {
+    clearError () {
+      this.error = ''
+    },
+    login () {
+      this.$apollo.mutate({
+        mutation: loginMutation,
+        variables: {
+          email: this.email,
+          password: this.password
+        }
+      })
+        .then(({data}) => {
+          const {login} = data
+          cookie.set('auth_token', login.token)
+          this.$router.push('/tasks')
+        })
+        .catch(() => {
+          // console.log(error)
+          this.error = 'Email or password incorrect' 
+        })
     }
   }
 }

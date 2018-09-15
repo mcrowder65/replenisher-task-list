@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import cookie from 'js-cookie'
 
 import Home from '@/views/Home.vue'
 import Tasks from '@/views/Tasks.vue'
@@ -9,12 +10,19 @@ import Login from '@/views/Login.vue'
 
 Vue.use(Router)
 
-export default new Router({
+const router =  new Router({
   routes: [
     {
       path: '/',
       name: 'home',
       component: Home,
+      beforeEnter: (to, from, next) => {
+        if (cookie.get('auth_token')){
+          next()
+        } else {
+          window.location.replace('/#/login')
+        }
+      },
       children: [
         {
           path: '/tasks',
@@ -40,3 +48,5 @@ export default new Router({
     }
   ]
 })
+
+export default router
