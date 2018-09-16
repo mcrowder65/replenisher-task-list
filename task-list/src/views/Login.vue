@@ -72,7 +72,6 @@ export default {
           this.$router.push('/tasks')
         })
         .catch(() => {
-          // console.log(error)
           this.error = 'Email or password incorrect' 
         })
     }

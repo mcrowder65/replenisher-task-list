@@ -5,11 +5,13 @@ type User {
   name: String!
   admin: Boolean! @default(value: "false")
   tasks: [Task!]! @relation(name: "UserTasks")
+  writtenNotes: [Note!]! @relation(name: "UserWrittenNotes")
   createdAt: DateTime!
   updatedAt: DateTime!
 }
 
 type Template {
+  id: ID! @unique
   title: String!
   description: String!
   priority: Priority! @default(value: "LOW")
@@ -18,21 +20,25 @@ type Template {
 }
 
 type Task {
+  id: ID! @unique
   title: String!
   description: String!
   notes: [Note!]! @relation(name: "TaskNotes")
   user: User! @relation(name: "UserTasks")
-  assigned: Boolean!
+  assigned: Boolean! @default(value: "false")
+  priority: Priority! @default(value: "LOW")
   status: Status! @default(value: "READY")
   createdAt: DateTime!
   updatedAt: DateTime!
 }
 
 type Note {
+  id: ID! @unique
   title: String!
   text: String!
   date: DateTime!
   task: Task! @relation(name: "TaskNotes")
+  author: User! @relation(name: "UserWrittenNotes")
   createdAt: DateTime!
   updatedAt: DateTime!
 }

@@ -34,10 +34,10 @@
             </el-table-column>
             <el-table-column
               label="Date"
-              width="180">
+              width="200">
               <template slot-scope="scope">
                 <i class="el-icon-time"></i>
-                <span style="margin-left: 10px">{{ scope.row.date }}</span>
+                <span style="margin-left: 10px">{{ new Date(scope.row.date).toDateString() }}</span>
               </template>
             </el-table-column>
             <el-table-column
@@ -48,31 +48,86 @@
               </template>
             </el-table-column>
             <el-table-column
-              label="Operations">
+              label="Author"
+              width="300">
+              <template slot-scope="scope">
+                <span>{{ scope.row.author.name }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="Options">
               <template slot-scope="scope">
                 <el-button
+                  v-if="currentUser && currentUser.id === scope.row.author.id"
                   size="mini"
-                  @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
+                  @click="currentNote=scope.row;showNoteDialog = true">Edit</el-button>
                 <el-button
+                  v-if="currentUser && currentUser.admin"
                   size="mini"
                   type="danger"
-                  disabled
-                  @click="handleDelete(scope.$index, scope.row)">Delete</el-button>
+                  @click="deleteNote(scope.row.id)">Delete</el-button>
               </template>
             </el-table-column>
           </el-table>
           <el-row class="button-row">
-            <el-button icon="el-icon-edit" circle></el-button>
-            <el-button type="primary" icon="el-icon-caret-right" circle></el-button>
+            <el-button icon="el-icon-edit" circle @click="currentTask = task; showNoteDialog=true;"></el-button>
+            <el-button
+              type="primary"
+              icon="el-icon-caret-right"
+              circle></el-button>
             <el-button type="success" icon="el-icon-check" circle></el-button>
           </el-row>
         </el-collapse-item>
       </template>
     </el-collapse>
+
+    <create-note-dialog
+      v-model="showNoteDialog"
+      :error="error"
+      :header="currentNote ? 'Edit Note' : 'Add Note'"
+      :title="currentNote ? currentNote.title : ''"
+      :text="currentNote ? currentNote.text : ''"
+      @confirm="createNote"
+      @clear-error="error = ''"
+    />
   </div>
 </template>
 
 <script>
+import gql from 'graphql-tag'
+import CreateNoteDialog from './CreateNoteDialog.vue'
+
+const currentUserQuery = gql`
+  query currentUser {
+    currentUser {
+      id
+      admin
+    }
+  }
+`
+const deleteNoteMutation = gql`
+  mutation deleteNote($id: ID!) {
+    deleteNote(id: $id) {
+      id
+    }
+  }
+`
+const createNoteMutation = gql`
+  mutation createNote($title: String!, $text: String!, $id: ID!) {
+    createNote(title: $title, text: $text, id: $id) {
+      id
+    }
+  }
+`
+
+const updateNoteMutation = gql`
+  mutation updateNote($title: String!, $text: String!, $id: ID!) {
+    updateNote(title: $title, text: $text, id: $id) {
+      id
+    }
+  }
+`
+
 export default {
   name: 'TaskTable',
   props: {
@@ -81,9 +136,54 @@ export default {
       required:true
     }
   },
+  components: {
+    'create-note-dialog': CreateNoteDialog
+  },
+  apollo: {
+    currentUser: {
+      query: currentUserQuery
+    }
+  },
   data () {
     return {
-      activeName: "1"
+      activeName: "",
+      currentNote: null,
+      error: '',
+      showNoteDialog: false,
+      currentTask: {}
+    }
+  },
+  methods: {
+    deleteNote (id) {
+      this.$apollo.mutate({
+        mutation: deleteNoteMutation,
+        variables: {
+          id
+        }
+      })
+        .then(({data}) => {
+          this.$emit('change')
+        })
+    },
+
+    createNote (title, text) {
+      this.$apollo.mutate({
+        mutation: this.currentNote ? updateNoteMutation : createNoteMutation,
+        variables: {
+          title: title,
+          text: text,
+          id: this.currentNote ? this.currentNote.id : this.currentTask.id
+        }
+      })
+        .then(({data}) => {
+          this.$emit('change')
+          this.showNoteDialog = false
+          this.error = ''
+          this.currentNote = null
+        })
+        .catch(() => {
+          this.error = 'There was an error creating this note'
+        })
     }
   }
 }

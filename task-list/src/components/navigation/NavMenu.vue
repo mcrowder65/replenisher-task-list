@@ -15,11 +15,15 @@
       <i class="el-icon-edit-outline"></i>
       <span>Personal Tasks</span>
     </el-menu-item>
-    <el-menu-item index="templates">
+    <el-menu-item 
+      v-if="currentUser && currentUser.admin"
+      index="templates">
       <i class="el-icon-document"></i>
       <span>Task Templates</span>
     </el-menu-item>
-    <el-menu-item index="users">
+    <el-menu-item 
+      v-if="currentUser && currentUser.admin"
+      index="users">
       <i class="el-icon-share"></i>
       <span>Users</span>
     </el-menu-item>
@@ -27,8 +31,23 @@
 </template>
 
 <script>
+import gql from 'graphql-tag'
+
+const currentUserQuery = gql`
+  query currentUser {
+    currentUser {
+      id
+      admin
+    }
+  }
+`
 export default {
-  name: 'NavMenu'
+  name: 'NavMenu',
+  apollo: {
+    currentUser: {
+      query: currentUserQuery
+    }
+  }
 }
 </script>
 

@@ -1,12 +1,27 @@
 #import User from './generated/prisma.graphql'
 
 type Query {
-  me: User
+  currentUser: User
+  users(search: String): [User!]!
+  # tasks(userId: ID, assigned: Boolean): [Task!]!
+  # templates(search: String): [Template!]!
+  # users(search: String): [User!]!
 }
 
 type Mutation {
   signup(email: String!, password: String!, name: String!): AuthPayload!
   login(email: String!, password: String!): AuthPayload!
+  createTask(title: String!, description: String!, priority: Priority!): Task!
+  createNote(title: String!, text: String!, id: ID!): Note!
+  deleteNote(id: ID!): Note!
+  updateNote(id: ID!, title: String!, text: String!): Note!
+  # newTemplate(): Template
+  # newNote(): Note
+  # newUser(): User
+  # updateTask(): Task
+  # updateTemplate(): Template
+  # updateNote(): Note
+  # assignTask(): Task
 }
 
 type AuthPayload {

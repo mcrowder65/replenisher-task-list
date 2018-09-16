@@ -3,7 +3,8 @@
     v-model="search" 
     class="search-bar"
     placeholder="Search"
-    suffix-icon="el-icon-search" />
+    :suffix-icon="!loading ? 'el-icon-search' : 'el-icon-loading'" 
+    @keyup.enter.native="onEnter"/>
 </template>
 
 <script>
@@ -11,7 +12,13 @@ export default {
   name: 'Search',
   data () {
     return {
+      loading: false,
       search: ''
+    }
+  },
+  methods: {
+    onEnter () {
+      this.$emit('search', this.search)
     }
   }
 }

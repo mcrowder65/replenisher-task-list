@@ -1,5 +1,17 @@
 # source: http://localhost:4466/tasks/dev
-# timestamp: Sat Sep 15 2018 11:49:53 GMT-0600 (Mountain Daylight Time)
+# timestamp: Sat Sep 15 2018 21:37:45 GMT-0600 (Mountain Daylight Time)
+
+type AggregateNote {
+  count: Int!
+}
+
+type AggregateTask {
+  count: Int!
+}
+
+type AggregateTemplate {
+  count: Int!
+}
 
 type AggregateUser {
   count: Int!
@@ -10,6 +22,8 @@ type BatchPayload {
   count: Long!
 }
 
+scalar DateTime
+
 """
 The `Long` scalar type represents non-fractional signed whole numeric values.
 Long can represent values between -(2^63) and 2^63 - 1.
@@ -18,11 +32,29 @@ scalar Long
 
 type Mutation {
   createUser(data: UserCreateInput!): User!
+  createTemplate(data: TemplateCreateInput!): Template!
+  createTask(data: TaskCreateInput!): Task!
+  createNote(data: NoteCreateInput!): Note!
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
+  updateTemplate(data: TemplateUpdateInput!, where: TemplateWhereUniqueInput!): Template
+  updateTask(data: TaskUpdateInput!, where: TaskWhereUniqueInput!): Task
+  updateNote(data: NoteUpdateInput!, where: NoteWhereUniqueInput!): Note
   deleteUser(where: UserWhereUniqueInput!): User
+  deleteTemplate(where: TemplateWhereUniqueInput!): Template
+  deleteTask(where: TaskWhereUniqueInput!): Task
+  deleteNote(where: NoteWhereUniqueInput!): Note
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
+  upsertTemplate(where: TemplateWhereUniqueInput!, create: TemplateCreateInput!, update: TemplateUpdateInput!): Template!
+  upsertTask(where: TaskWhereUniqueInput!, create: TaskCreateInput!, update: TaskUpdateInput!): Task!
+  upsertNote(where: NoteWhereUniqueInput!, create: NoteCreateInput!, update: NoteUpdateInput!): Note!
   updateManyUsers(data: UserUpdateInput!, where: UserWhereInput): BatchPayload!
+  updateManyTemplates(data: TemplateUpdateInput!, where: TemplateWhereInput): BatchPayload!
+  updateManyTasks(data: TaskUpdateInput!, where: TaskWhereInput): BatchPayload!
+  updateManyNotes(data: NoteUpdateInput!, where: NoteWhereInput): BatchPayload!
   deleteManyUsers(where: UserWhereInput): BatchPayload!
+  deleteManyTemplates(where: TemplateWhereInput): BatchPayload!
+  deleteManyTasks(where: TaskWhereInput): BatchPayload!
+  deleteManyNotes(where: NoteWhereInput): BatchPayload!
 }
 
 enum MutationType {
@@ -35,6 +67,396 @@ enum MutationType {
 interface Node {
   """The id of the object."""
   id: ID!
+}
+
+type Note implements Node {
+  id: ID!
+  title: String!
+  text: String!
+  date: DateTime!
+  task(where: TaskWhereInput): Task!
+  author(where: UserWhereInput): User!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A connection to a list of items."""
+type NoteConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [NoteEdge]!
+  aggregate: AggregateNote!
+}
+
+input NoteCreateInput {
+  title: String!
+  text: String!
+  date: DateTime!
+  task: TaskCreateOneWithoutNotesInput!
+  author: UserCreateOneWithoutWrittenNotesInput!
+}
+
+input NoteCreateManyWithoutAuthorInput {
+  create: [NoteCreateWithoutAuthorInput!]
+  connect: [NoteWhereUniqueInput!]
+}
+
+input NoteCreateManyWithoutTaskInput {
+  create: [NoteCreateWithoutTaskInput!]
+  connect: [NoteWhereUniqueInput!]
+}
+
+input NoteCreateWithoutAuthorInput {
+  title: String!
+  text: String!
+  date: DateTime!
+  task: TaskCreateOneWithoutNotesInput!
+}
+
+input NoteCreateWithoutTaskInput {
+  title: String!
+  text: String!
+  date: DateTime!
+  author: UserCreateOneWithoutWrittenNotesInput!
+}
+
+"""An edge in a connection."""
+type NoteEdge {
+  """The item at the end of the edge."""
+  node: Note!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
+enum NoteOrderByInput {
+  id_ASC
+  id_DESC
+  title_ASC
+  title_DESC
+  text_ASC
+  text_DESC
+  date_ASC
+  date_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type NotePreviousValues {
+  id: ID!
+  title: String!
+  text: String!
+  date: DateTime!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type NoteSubscriptionPayload {
+  mutation: MutationType!
+  node: Note
+  updatedFields: [String!]
+  previousValues: NotePreviousValues
+}
+
+input NoteSubscriptionWhereInput {
+  """Logical AND on all given filters."""
+  AND: [NoteSubscriptionWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [NoteSubscriptionWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [NoteSubscriptionWhereInput!]
+
+  """
+  The subscription event gets dispatched when it's listed in mutation_in
+  """
+  mutation_in: [MutationType!]
+
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: NoteWhereInput
+}
+
+input NoteUpdateInput {
+  title: String
+  text: String
+  date: DateTime
+  task: TaskUpdateOneWithoutNotesInput
+  author: UserUpdateOneWithoutWrittenNotesInput
+}
+
+input NoteUpdateManyWithoutAuthorInput {
+  create: [NoteCreateWithoutAuthorInput!]
+  connect: [NoteWhereUniqueInput!]
+  disconnect: [NoteWhereUniqueInput!]
+  delete: [NoteWhereUniqueInput!]
+  update: [NoteUpdateWithWhereUniqueWithoutAuthorInput!]
+  upsert: [NoteUpsertWithWhereUniqueWithoutAuthorInput!]
+}
+
+input NoteUpdateManyWithoutTaskInput {
+  create: [NoteCreateWithoutTaskInput!]
+  connect: [NoteWhereUniqueInput!]
+  disconnect: [NoteWhereUniqueInput!]
+  delete: [NoteWhereUniqueInput!]
+  update: [NoteUpdateWithWhereUniqueWithoutTaskInput!]
+  upsert: [NoteUpsertWithWhereUniqueWithoutTaskInput!]
+}
+
+input NoteUpdateWithoutAuthorDataInput {
+  title: String
+  text: String
+  date: DateTime
+  task: TaskUpdateOneWithoutNotesInput
+}
+
+input NoteUpdateWithoutTaskDataInput {
+  title: String
+  text: String
+  date: DateTime
+  author: UserUpdateOneWithoutWrittenNotesInput
+}
+
+input NoteUpdateWithWhereUniqueWithoutAuthorInput {
+  where: NoteWhereUniqueInput!
+  data: NoteUpdateWithoutAuthorDataInput!
+}
+
+input NoteUpdateWithWhereUniqueWithoutTaskInput {
+  where: NoteWhereUniqueInput!
+  data: NoteUpdateWithoutTaskDataInput!
+}
+
+input NoteUpsertWithWhereUniqueWithoutAuthorInput {
+  where: NoteWhereUniqueInput!
+  update: NoteUpdateWithoutAuthorDataInput!
+  create: NoteCreateWithoutAuthorInput!
+}
+
+input NoteUpsertWithWhereUniqueWithoutTaskInput {
+  where: NoteWhereUniqueInput!
+  update: NoteUpdateWithoutTaskDataInput!
+  create: NoteCreateWithoutTaskInput!
+}
+
+input NoteWhereInput {
+  """Logical AND on all given filters."""
+  AND: [NoteWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [NoteWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [NoteWhereInput!]
+  id: ID
+
+  """All values that are not equal to given value."""
+  id_not: ID
+
+  """All values that are contained in given list."""
+  id_in: [ID!]
+
+  """All values that are not contained in given list."""
+  id_not_in: [ID!]
+
+  """All values less than the given value."""
+  id_lt: ID
+
+  """All values less than or equal the given value."""
+  id_lte: ID
+
+  """All values greater than the given value."""
+  id_gt: ID
+
+  """All values greater than or equal the given value."""
+  id_gte: ID
+
+  """All values containing the given string."""
+  id_contains: ID
+
+  """All values not containing the given string."""
+  id_not_contains: ID
+
+  """All values starting with the given string."""
+  id_starts_with: ID
+
+  """All values not starting with the given string."""
+  id_not_starts_with: ID
+
+  """All values ending with the given string."""
+  id_ends_with: ID
+
+  """All values not ending with the given string."""
+  id_not_ends_with: ID
+  title: String
+
+  """All values that are not equal to given value."""
+  title_not: String
+
+  """All values that are contained in given list."""
+  title_in: [String!]
+
+  """All values that are not contained in given list."""
+  title_not_in: [String!]
+
+  """All values less than the given value."""
+  title_lt: String
+
+  """All values less than or equal the given value."""
+  title_lte: String
+
+  """All values greater than the given value."""
+  title_gt: String
+
+  """All values greater than or equal the given value."""
+  title_gte: String
+
+  """All values containing the given string."""
+  title_contains: String
+
+  """All values not containing the given string."""
+  title_not_contains: String
+
+  """All values starting with the given string."""
+  title_starts_with: String
+
+  """All values not starting with the given string."""
+  title_not_starts_with: String
+
+  """All values ending with the given string."""
+  title_ends_with: String
+
+  """All values not ending with the given string."""
+  title_not_ends_with: String
+  text: String
+
+  """All values that are not equal to given value."""
+  text_not: String
+
+  """All values that are contained in given list."""
+  text_in: [String!]
+
+  """All values that are not contained in given list."""
+  text_not_in: [String!]
+
+  """All values less than the given value."""
+  text_lt: String
+
+  """All values less than or equal the given value."""
+  text_lte: String
+
+  """All values greater than the given value."""
+  text_gt: String
+
+  """All values greater than or equal the given value."""
+  text_gte: String
+
+  """All values containing the given string."""
+  text_contains: String
+
+  """All values not containing the given string."""
+  text_not_contains: String
+
+  """All values starting with the given string."""
+  text_starts_with: String
+
+  """All values not starting with the given string."""
+  text_not_starts_with: String
+
+  """All values ending with the given string."""
+  text_ends_with: String
+
+  """All values not ending with the given string."""
+  text_not_ends_with: String
+  date: DateTime
+
+  """All values that are not equal to given value."""
+  date_not: DateTime
+
+  """All values that are contained in given list."""
+  date_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  date_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  date_lt: DateTime
+
+  """All values less than or equal the given value."""
+  date_lte: DateTime
+
+  """All values greater than the given value."""
+  date_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  date_gte: DateTime
+  createdAt: DateTime
+
+  """All values that are not equal to given value."""
+  createdAt_not: DateTime
+
+  """All values that are contained in given list."""
+  createdAt_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  createdAt_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  createdAt_lt: DateTime
+
+  """All values less than or equal the given value."""
+  createdAt_lte: DateTime
+
+  """All values greater than the given value."""
+  createdAt_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+
+  """All values that are not equal to given value."""
+  updatedAt_not: DateTime
+
+  """All values that are contained in given list."""
+  updatedAt_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  updatedAt_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  updatedAt_lt: DateTime
+
+  """All values less than or equal the given value."""
+  updatedAt_lte: DateTime
+
+  """All values greater than the given value."""
+  updatedAt_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  updatedAt_gte: DateTime
+  task: TaskWhereInput
+  author: UserWhereInput
+}
+
+input NoteWhereUniqueInput {
+  id: ID
 }
 
 """Information about pagination in a connection."""
@@ -52,10 +474,25 @@ type PageInfo {
   endCursor: String
 }
 
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
 type Query {
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
+  templates(where: TemplateWhereInput, orderBy: TemplateOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Template]!
+  tasks(where: TaskWhereInput, orderBy: TaskOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Task]!
+  notes(where: NoteWhereInput, orderBy: NoteOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Note]!
   user(where: UserWhereUniqueInput!): User
+  template(where: TemplateWhereUniqueInput!): Template
+  task(where: TaskWhereUniqueInput!): Task
+  note(where: NoteWhereUniqueInput!): Note
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
+  templatesConnection(where: TemplateWhereInput, orderBy: TemplateOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): TemplateConnection!
+  tasksConnection(where: TaskWhereInput, orderBy: TaskOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): TaskConnection!
+  notesConnection(where: NoteWhereInput, orderBy: NoteOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): NoteConnection!
 
   """Fetches an object given its ID"""
   node(
@@ -64,8 +501,716 @@ type Query {
   ): Node
 }
 
+enum Status {
+  READY
+  STARTED
+  FINISHED
+}
+
 type Subscription {
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
+  template(where: TemplateSubscriptionWhereInput): TemplateSubscriptionPayload
+  task(where: TaskSubscriptionWhereInput): TaskSubscriptionPayload
+  note(where: NoteSubscriptionWhereInput): NoteSubscriptionPayload
+}
+
+type Task implements Node {
+  id: ID!
+  title: String!
+  description: String!
+  notes(where: NoteWhereInput, orderBy: NoteOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Note!]
+  user(where: UserWhereInput): User!
+  assigned: Boolean!
+  priority: Priority!
+  status: Status!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A connection to a list of items."""
+type TaskConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [TaskEdge]!
+  aggregate: AggregateTask!
+}
+
+input TaskCreateInput {
+  title: String!
+  description: String!
+  assigned: Boolean
+  priority: Priority
+  status: Status
+  notes: NoteCreateManyWithoutTaskInput
+  user: UserCreateOneWithoutTasksInput!
+}
+
+input TaskCreateManyWithoutUserInput {
+  create: [TaskCreateWithoutUserInput!]
+  connect: [TaskWhereUniqueInput!]
+}
+
+input TaskCreateOneWithoutNotesInput {
+  create: TaskCreateWithoutNotesInput
+  connect: TaskWhereUniqueInput
+}
+
+input TaskCreateWithoutNotesInput {
+  title: String!
+  description: String!
+  assigned: Boolean
+  priority: Priority
+  status: Status
+  user: UserCreateOneWithoutTasksInput!
+}
+
+input TaskCreateWithoutUserInput {
+  title: String!
+  description: String!
+  assigned: Boolean
+  priority: Priority
+  status: Status
+  notes: NoteCreateManyWithoutTaskInput
+}
+
+"""An edge in a connection."""
+type TaskEdge {
+  """The item at the end of the edge."""
+  node: Task!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
+enum TaskOrderByInput {
+  id_ASC
+  id_DESC
+  title_ASC
+  title_DESC
+  description_ASC
+  description_DESC
+  assigned_ASC
+  assigned_DESC
+  priority_ASC
+  priority_DESC
+  status_ASC
+  status_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type TaskPreviousValues {
+  id: ID!
+  title: String!
+  description: String!
+  assigned: Boolean!
+  priority: Priority!
+  status: Status!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type TaskSubscriptionPayload {
+  mutation: MutationType!
+  node: Task
+  updatedFields: [String!]
+  previousValues: TaskPreviousValues
+}
+
+input TaskSubscriptionWhereInput {
+  """Logical AND on all given filters."""
+  AND: [TaskSubscriptionWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [TaskSubscriptionWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [TaskSubscriptionWhereInput!]
+
+  """
+  The subscription event gets dispatched when it's listed in mutation_in
+  """
+  mutation_in: [MutationType!]
+
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: TaskWhereInput
+}
+
+input TaskUpdateInput {
+  title: String
+  description: String
+  assigned: Boolean
+  priority: Priority
+  status: Status
+  notes: NoteUpdateManyWithoutTaskInput
+  user: UserUpdateOneWithoutTasksInput
+}
+
+input TaskUpdateManyWithoutUserInput {
+  create: [TaskCreateWithoutUserInput!]
+  connect: [TaskWhereUniqueInput!]
+  disconnect: [TaskWhereUniqueInput!]
+  delete: [TaskWhereUniqueInput!]
+  update: [TaskUpdateWithWhereUniqueWithoutUserInput!]
+  upsert: [TaskUpsertWithWhereUniqueWithoutUserInput!]
+}
+
+input TaskUpdateOneWithoutNotesInput {
+  create: TaskCreateWithoutNotesInput
+  connect: TaskWhereUniqueInput
+  delete: Boolean
+  update: TaskUpdateWithoutNotesDataInput
+  upsert: TaskUpsertWithoutNotesInput
+}
+
+input TaskUpdateWithoutNotesDataInput {
+  title: String
+  description: String
+  assigned: Boolean
+  priority: Priority
+  status: Status
+  user: UserUpdateOneWithoutTasksInput
+}
+
+input TaskUpdateWithoutUserDataInput {
+  title: String
+  description: String
+  assigned: Boolean
+  priority: Priority
+  status: Status
+  notes: NoteUpdateManyWithoutTaskInput
+}
+
+input TaskUpdateWithWhereUniqueWithoutUserInput {
+  where: TaskWhereUniqueInput!
+  data: TaskUpdateWithoutUserDataInput!
+}
+
+input TaskUpsertWithoutNotesInput {
+  update: TaskUpdateWithoutNotesDataInput!
+  create: TaskCreateWithoutNotesInput!
+}
+
+input TaskUpsertWithWhereUniqueWithoutUserInput {
+  where: TaskWhereUniqueInput!
+  update: TaskUpdateWithoutUserDataInput!
+  create: TaskCreateWithoutUserInput!
+}
+
+input TaskWhereInput {
+  """Logical AND on all given filters."""
+  AND: [TaskWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [TaskWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [TaskWhereInput!]
+  id: ID
+
+  """All values that are not equal to given value."""
+  id_not: ID
+
+  """All values that are contained in given list."""
+  id_in: [ID!]
+
+  """All values that are not contained in given list."""
+  id_not_in: [ID!]
+
+  """All values less than the given value."""
+  id_lt: ID
+
+  """All values less than or equal the given value."""
+  id_lte: ID
+
+  """All values greater than the given value."""
+  id_gt: ID
+
+  """All values greater than or equal the given value."""
+  id_gte: ID
+
+  """All values containing the given string."""
+  id_contains: ID
+
+  """All values not containing the given string."""
+  id_not_contains: ID
+
+  """All values starting with the given string."""
+  id_starts_with: ID
+
+  """All values not starting with the given string."""
+  id_not_starts_with: ID
+
+  """All values ending with the given string."""
+  id_ends_with: ID
+
+  """All values not ending with the given string."""
+  id_not_ends_with: ID
+  title: String
+
+  """All values that are not equal to given value."""
+  title_not: String
+
+  """All values that are contained in given list."""
+  title_in: [String!]
+
+  """All values that are not contained in given list."""
+  title_not_in: [String!]
+
+  """All values less than the given value."""
+  title_lt: String
+
+  """All values less than or equal the given value."""
+  title_lte: String
+
+  """All values greater than the given value."""
+  title_gt: String
+
+  """All values greater than or equal the given value."""
+  title_gte: String
+
+  """All values containing the given string."""
+  title_contains: String
+
+  """All values not containing the given string."""
+  title_not_contains: String
+
+  """All values starting with the given string."""
+  title_starts_with: String
+
+  """All values not starting with the given string."""
+  title_not_starts_with: String
+
+  """All values ending with the given string."""
+  title_ends_with: String
+
+  """All values not ending with the given string."""
+  title_not_ends_with: String
+  description: String
+
+  """All values that are not equal to given value."""
+  description_not: String
+
+  """All values that are contained in given list."""
+  description_in: [String!]
+
+  """All values that are not contained in given list."""
+  description_not_in: [String!]
+
+  """All values less than the given value."""
+  description_lt: String
+
+  """All values less than or equal the given value."""
+  description_lte: String
+
+  """All values greater than the given value."""
+  description_gt: String
+
+  """All values greater than or equal the given value."""
+  description_gte: String
+
+  """All values containing the given string."""
+  description_contains: String
+
+  """All values not containing the given string."""
+  description_not_contains: String
+
+  """All values starting with the given string."""
+  description_starts_with: String
+
+  """All values not starting with the given string."""
+  description_not_starts_with: String
+
+  """All values ending with the given string."""
+  description_ends_with: String
+
+  """All values not ending with the given string."""
+  description_not_ends_with: String
+  assigned: Boolean
+
+  """All values that are not equal to given value."""
+  assigned_not: Boolean
+  priority: Priority
+
+  """All values that are not equal to given value."""
+  priority_not: Priority
+
+  """All values that are contained in given list."""
+  priority_in: [Priority!]
+
+  """All values that are not contained in given list."""
+  priority_not_in: [Priority!]
+  status: Status
+
+  """All values that are not equal to given value."""
+  status_not: Status
+
+  """All values that are contained in given list."""
+  status_in: [Status!]
+
+  """All values that are not contained in given list."""
+  status_not_in: [Status!]
+  createdAt: DateTime
+
+  """All values that are not equal to given value."""
+  createdAt_not: DateTime
+
+  """All values that are contained in given list."""
+  createdAt_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  createdAt_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  createdAt_lt: DateTime
+
+  """All values less than or equal the given value."""
+  createdAt_lte: DateTime
+
+  """All values greater than the given value."""
+  createdAt_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+
+  """All values that are not equal to given value."""
+  updatedAt_not: DateTime
+
+  """All values that are contained in given list."""
+  updatedAt_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  updatedAt_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  updatedAt_lt: DateTime
+
+  """All values less than or equal the given value."""
+  updatedAt_lte: DateTime
+
+  """All values greater than the given value."""
+  updatedAt_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  updatedAt_gte: DateTime
+  notes_every: NoteWhereInput
+  notes_some: NoteWhereInput
+  notes_none: NoteWhereInput
+  user: UserWhereInput
+}
+
+input TaskWhereUniqueInput {
+  id: ID
+}
+
+type Template implements Node {
+  id: ID!
+  title: String!
+  description: String!
+  priority: Priority!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A connection to a list of items."""
+type TemplateConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [TemplateEdge]!
+  aggregate: AggregateTemplate!
+}
+
+input TemplateCreateInput {
+  title: String!
+  description: String!
+  priority: Priority
+}
+
+"""An edge in a connection."""
+type TemplateEdge {
+  """The item at the end of the edge."""
+  node: Template!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
+enum TemplateOrderByInput {
+  id_ASC
+  id_DESC
+  title_ASC
+  title_DESC
+  description_ASC
+  description_DESC
+  priority_ASC
+  priority_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type TemplatePreviousValues {
+  id: ID!
+  title: String!
+  description: String!
+  priority: Priority!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type TemplateSubscriptionPayload {
+  mutation: MutationType!
+  node: Template
+  updatedFields: [String!]
+  previousValues: TemplatePreviousValues
+}
+
+input TemplateSubscriptionWhereInput {
+  """Logical AND on all given filters."""
+  AND: [TemplateSubscriptionWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [TemplateSubscriptionWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [TemplateSubscriptionWhereInput!]
+
+  """
+  The subscription event gets dispatched when it's listed in mutation_in
+  """
+  mutation_in: [MutationType!]
+
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: TemplateWhereInput
+}
+
+input TemplateUpdateInput {
+  title: String
+  description: String
+  priority: Priority
+}
+
+input TemplateWhereInput {
+  """Logical AND on all given filters."""
+  AND: [TemplateWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [TemplateWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [TemplateWhereInput!]
+  id: ID
+
+  """All values that are not equal to given value."""
+  id_not: ID
+
+  """All values that are contained in given list."""
+  id_in: [ID!]
+
+  """All values that are not contained in given list."""
+  id_not_in: [ID!]
+
+  """All values less than the given value."""
+  id_lt: ID
+
+  """All values less than or equal the given value."""
+  id_lte: ID
+
+  """All values greater than the given value."""
+  id_gt: ID
+
+  """All values greater than or equal the given value."""
+  id_gte: ID
+
+  """All values containing the given string."""
+  id_contains: ID
+
+  """All values not containing the given string."""
+  id_not_contains: ID
+
+  """All values starting with the given string."""
+  id_starts_with: ID
+
+  """All values not starting with the given string."""
+  id_not_starts_with: ID
+
+  """All values ending with the given string."""
+  id_ends_with: ID
+
+  """All values not ending with the given string."""
+  id_not_ends_with: ID
+  title: String
+
+  """All values that are not equal to given value."""
+  title_not: String
+
+  """All values that are contained in given list."""
+  title_in: [String!]
+
+  """All values that are not contained in given list."""
+  title_not_in: [String!]
+
+  """All values less than the given value."""
+  title_lt: String
+
+  """All values less than or equal the given value."""
+  title_lte: String
+
+  """All values greater than the given value."""
+  title_gt: String
+
+  """All values greater than or equal the given value."""
+  title_gte: String
+
+  """All values containing the given string."""
+  title_contains: String
+
+  """All values not containing the given string."""
+  title_not_contains: String
+
+  """All values starting with the given string."""
+  title_starts_with: String
+
+  """All values not starting with the given string."""
+  title_not_starts_with: String
+
+  """All values ending with the given string."""
+  title_ends_with: String
+
+  """All values not ending with the given string."""
+  title_not_ends_with: String
+  description: String
+
+  """All values that are not equal to given value."""
+  description_not: String
+
+  """All values that are contained in given list."""
+  description_in: [String!]
+
+  """All values that are not contained in given list."""
+  description_not_in: [String!]
+
+  """All values less than the given value."""
+  description_lt: String
+
+  """All values less than or equal the given value."""
+  description_lte: String
+
+  """All values greater than the given value."""
+  description_gt: String
+
+  """All values greater than or equal the given value."""
+  description_gte: String
+
+  """All values containing the given string."""
+  description_contains: String
+
+  """All values not containing the given string."""
+  description_not_contains: String
+
+  """All values starting with the given string."""
+  description_starts_with: String
+
+  """All values not starting with the given string."""
+  description_not_starts_with: String
+
+  """All values ending with the given string."""
+  description_ends_with: String
+
+  """All values not ending with the given string."""
+  description_not_ends_with: String
+  priority: Priority
+
+  """All values that are not equal to given value."""
+  priority_not: Priority
+
+  """All values that are contained in given list."""
+  priority_in: [Priority!]
+
+  """All values that are not contained in given list."""
+  priority_not_in: [Priority!]
+  createdAt: DateTime
+
+  """All values that are not equal to given value."""
+  createdAt_not: DateTime
+
+  """All values that are contained in given list."""
+  createdAt_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  createdAt_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  createdAt_lt: DateTime
+
+  """All values less than or equal the given value."""
+  createdAt_lte: DateTime
+
+  """All values greater than the given value."""
+  createdAt_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+
+  """All values that are not equal to given value."""
+  updatedAt_not: DateTime
+
+  """All values that are contained in given list."""
+  updatedAt_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  updatedAt_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  updatedAt_lt: DateTime
+
+  """All values less than or equal the given value."""
+  updatedAt_lte: DateTime
+
+  """All values greater than the given value."""
+  updatedAt_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  updatedAt_gte: DateTime
+}
+
+input TemplateWhereUniqueInput {
+  id: ID
 }
 
 type User implements Node {
@@ -73,6 +1218,11 @@ type User implements Node {
   email: String!
   password: String!
   name: String!
+  admin: Boolean!
+  tasks(where: TaskWhereInput, orderBy: TaskOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Task!]
+  writtenNotes(where: NoteWhereInput, orderBy: NoteOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Note!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 """A connection to a list of items."""
@@ -89,6 +1239,35 @@ input UserCreateInput {
   email: String!
   password: String!
   name: String!
+  admin: Boolean
+  tasks: TaskCreateManyWithoutUserInput
+  writtenNotes: NoteCreateManyWithoutAuthorInput
+}
+
+input UserCreateOneWithoutTasksInput {
+  create: UserCreateWithoutTasksInput
+  connect: UserWhereUniqueInput
+}
+
+input UserCreateOneWithoutWrittenNotesInput {
+  create: UserCreateWithoutWrittenNotesInput
+  connect: UserWhereUniqueInput
+}
+
+input UserCreateWithoutTasksInput {
+  email: String!
+  password: String!
+  name: String!
+  admin: Boolean
+  writtenNotes: NoteCreateManyWithoutAuthorInput
+}
+
+input UserCreateWithoutWrittenNotesInput {
+  email: String!
+  password: String!
+  name: String!
+  admin: Boolean
+  tasks: TaskCreateManyWithoutUserInput
 }
 
 """An edge in a connection."""
@@ -109,10 +1288,12 @@ enum UserOrderByInput {
   password_DESC
   name_ASC
   name_DESC
-  updatedAt_ASC
-  updatedAt_DESC
+  admin_ASC
+  admin_DESC
   createdAt_ASC
   createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
 }
 
 type UserPreviousValues {
@@ -120,6 +1301,9 @@ type UserPreviousValues {
   email: String!
   password: String!
   name: String!
+  admin: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 type UserSubscriptionPayload {
@@ -165,6 +1349,51 @@ input UserUpdateInput {
   email: String
   password: String
   name: String
+  admin: Boolean
+  tasks: TaskUpdateManyWithoutUserInput
+  writtenNotes: NoteUpdateManyWithoutAuthorInput
+}
+
+input UserUpdateOneWithoutTasksInput {
+  create: UserCreateWithoutTasksInput
+  connect: UserWhereUniqueInput
+  delete: Boolean
+  update: UserUpdateWithoutTasksDataInput
+  upsert: UserUpsertWithoutTasksInput
+}
+
+input UserUpdateOneWithoutWrittenNotesInput {
+  create: UserCreateWithoutWrittenNotesInput
+  connect: UserWhereUniqueInput
+  delete: Boolean
+  update: UserUpdateWithoutWrittenNotesDataInput
+  upsert: UserUpsertWithoutWrittenNotesInput
+}
+
+input UserUpdateWithoutTasksDataInput {
+  email: String
+  password: String
+  name: String
+  admin: Boolean
+  writtenNotes: NoteUpdateManyWithoutAuthorInput
+}
+
+input UserUpdateWithoutWrittenNotesDataInput {
+  email: String
+  password: String
+  name: String
+  admin: Boolean
+  tasks: TaskUpdateManyWithoutUserInput
+}
+
+input UserUpsertWithoutTasksInput {
+  update: UserUpdateWithoutTasksDataInput!
+  create: UserCreateWithoutTasksInput!
+}
+
+input UserUpsertWithoutWrittenNotesInput {
+  update: UserUpdateWithoutWrittenNotesDataInput!
+  create: UserCreateWithoutWrittenNotesInput!
 }
 
 input UserWhereInput {
@@ -336,6 +1565,60 @@ input UserWhereInput {
 
   """All values not ending with the given string."""
   name_not_ends_with: String
+  admin: Boolean
+
+  """All values that are not equal to given value."""
+  admin_not: Boolean
+  createdAt: DateTime
+
+  """All values that are not equal to given value."""
+  createdAt_not: DateTime
+
+  """All values that are contained in given list."""
+  createdAt_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  createdAt_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  createdAt_lt: DateTime
+
+  """All values less than or equal the given value."""
+  createdAt_lte: DateTime
+
+  """All values greater than the given value."""
+  createdAt_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+
+  """All values that are not equal to given value."""
+  updatedAt_not: DateTime
+
+  """All values that are contained in given list."""
+  updatedAt_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  updatedAt_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  updatedAt_lt: DateTime
+
+  """All values less than or equal the given value."""
+  updatedAt_lte: DateTime
+
+  """All values greater than the given value."""
+  updatedAt_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  updatedAt_gte: DateTime
+  tasks_every: TaskWhereInput
+  tasks_some: TaskWhereInput
+  tasks_none: TaskWhereInput
+  writtenNotes_every: NoteWhereInput
+  writtenNotes_some: NoteWhereInput
+  writtenNotes_none: NoteWhereInput
 }
 
 input UserWhereUniqueInput {

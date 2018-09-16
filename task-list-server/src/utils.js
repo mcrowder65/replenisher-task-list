@@ -11,6 +11,20 @@ function getUserId(ctx) {
   throw new AuthError()
 }
 
+async function isAdmin(ctx) {
+  const id = getUserId(ctx)
+  const user = await ctx.db.query.user({
+    where: {
+      id
+    }
+  }, "{ admin }")
+  if (user.admin) {
+    return true
+  }
+
+  throw new AuthError()
+}
+
 class AuthError extends Error {
   constructor() {
     super('Not authorized')
@@ -19,5 +33,6 @@ class AuthError extends Error {
 
 module.exports = {
   getUserId,
+  isAdmin,
   AuthError
 }
