@@ -18,8 +18,11 @@
           </template>
           <div class="sub-title">Assigned Tasks:</div>
           <div class="user-tasks">
-            <task-table v-if="user.tasks" :tasks="user.tasks"/>
-            <div>No current tasks assigned</div>
+            <task-table 
+              v-if="user.tasks"
+              :tasks="user.tasks"
+              @change="$apollo.queries.users.refetch()"/>
+            <div v-else>No current tasks assigned</div>
           </div>
         </el-collapse-item> 
       </template>
@@ -57,6 +60,7 @@ import gql from 'graphql-tag'
 const usersQuery = gql`
   query users($search: String) {
     users(search: $search) {
+      id
       name
       email
       tasks(where: {assigned: true}) {

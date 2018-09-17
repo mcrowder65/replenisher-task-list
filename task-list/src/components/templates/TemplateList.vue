@@ -36,7 +36,7 @@
             Repeat: {{ (template.taskMeta.repeat === 0) ? 'No Repeat' : 'Every ' + template.taskMeta.repeat + ' days'}}
           </el-row>
           <el-row class="button-row">
-            <el-button type="primary" class="assign-button">Assign to User</el-button>
+            <el-button type="primary" class="assign-button" @click="showAssignDialog = true; metaId = template.taskMeta.id">Assign to User</el-button>
           </el-row>
         </el-collapse-item>
       </template>
@@ -49,6 +49,21 @@
       :error="error"
       @confirm="createTemplate"
       @clear-error="error = ''"/>
+    
+    <el-dialog
+      :visible.sync="showAssignDialog"
+      title="Assign Task to User"
+      width="33%">
+      <el-select v-model="userId">
+        <template v-for="user in users">
+          <el-option :key="user.id" :value="user.id" :label="user.name"/>
+        </template>
+      </el-select>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="$emit('input', false)">Cancel</el-button>
+        <el-button type="primary" @click="assignTask">Confirm</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -61,6 +76,24 @@ const createTemplateMutation = gql`
   mutation createTemplate($title: String!, $description: String!, $priority: Priority!, $repeat: Int!, $beginDate: DateTime!, $endDate: DateTime!) {
     createTemplate(title: $title, description: $description, priority: $priority, repeat: $repeat, beginDate: $beginDate, endDate: $endDate) {
       id
+    }
+  }
+`
+
+const assignTaskMutation = gql`
+  mutation assignTask($id: ID!, $userId: ID!){
+    assignTask(id: $id, userId: $userId) {
+      id
+    }
+  }
+`
+
+const usersQuery = gql`
+  query users($search: String) {
+    users(search: $search) {
+      id
+      name
+      email
     }
   }
 `
@@ -94,17 +127,36 @@ export default {
   apollo: {
     templates: {
       query: templateQuery
+    },
+    users: {
+      query: usersQuery
     }
   },
   data () {
     return {
       activeName: "1",
       error: '',
+      metaId: '',
+      userId: '',
       loading: false,
-      showNewDialog: false
+      showNewDialog: false,
+      showAssignDialog: false
     }
   },
   methods: {
+    assignTask () {
+      this.$apollo.mutate({
+        mutation: assignTaskMutation,
+        variables: {
+          id: this.metaId,
+          userId: this.userId
+        }
+      })
+        .then(() => {
+          this.$apollo.queries.templates.refetch()
+          this.showAssignDialog = false
+        })
+    },
     createTemplate ({title, description, priority, beginDate, endDate, repeat}) {
       this.$apollo.mutate({
         mutation: createTemplateMutation,

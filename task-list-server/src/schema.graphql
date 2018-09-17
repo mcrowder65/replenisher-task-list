@@ -10,6 +10,7 @@ type Mutation {
   signup(email: String!, password: String!, name: String!): AuthPayload!
   login(email: String!, password: String!): AuthPayload!
 
+  assignTask(id: ID!, userId: ID!): Task
   createTask(title: String!, description: String!, priority: Priority!, beginDate: DateTime!, endDate: DateTime!, repeat: Int!): Task!
   updateTask(id: ID!, status: Status): Task!
 
@@ -18,6 +19,7 @@ type Mutation {
   updateNote(id: ID!, title: String!, text: String!): Note!
 
   createTemplate(title: String!, description: String!, priority: Priority!, beginDate: DateTime!, endDate: DateTime!, repeat: Int!): Template!
+
 }
 
 type AuthPayload {

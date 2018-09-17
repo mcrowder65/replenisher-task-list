@@ -17,7 +17,7 @@ const Query = {
       },
       orderBy: "name_ASC",
       first: 25
-    })
+    },info)
   },
 
   templates(parent, args, ctx, info) {
