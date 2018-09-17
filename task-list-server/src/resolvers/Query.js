@@ -6,9 +6,9 @@ const Query = {
     return ctx.db.query.user({ where: { id } }, info)
   },
 
-  async users(parent, args, ctx, info) {
+  users(parent, args, ctx, info) {
     isAdmin(ctx)
-    return await ctx.db.query.users({
+    return ctx.db.query.users({
       where: {
         OR: [
           { email_contains: args.search || '' },
@@ -18,7 +18,24 @@ const Query = {
       orderBy: "name_ASC",
       first: 25
     })
+  },
+
+  templates(parent, args, ctx, info) {
+    isAdmin(ctx)
+    return ctx.db.query.templates({
+      where: {
+        taskMeta: {
+          OR: [
+            { title_contains: args.search || ''},
+            { description_contains: args.search || ''}
+          ]
+        }
+      },
+      orderBy: "id_DESC",
+      first: 25
+    }, info)
   }
+  
 }
 
 module.exports = { Query }

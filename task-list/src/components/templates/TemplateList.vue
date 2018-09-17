@@ -5,20 +5,35 @@
         <table-header text="Available Templates"/>
       </el-col>
       <el-col :span="6">
-        <search-bar/>
+        <search-bar :loading="loading" @search="search"/>
       </el-col>
     </el-row>
     <el-collapse v-model="activeName">
-      <template v-for="task in tasks">
+      <template v-for="template in templates">
         <el-collapse-item
-          :name="task.id"
-          :key="task.id">
+          :name="template.id"
+          :key="template.id">
           <template slot="title">
-              <span class="title">{{ task.title }}</span>
+              <span class="title">{{ template.taskMeta.title }}</span>
+              <priority-tag :task="template"/>
           </template>
-          12/30/2018 - 01/01/2019 <br>
           <el-row class="info-row">
-            Description: {{ task.description }}
+            Description: {{ template.taskMeta.description }}
+          </el-row>
+          Start Date:
+          <el-date-picker
+            v-model="template.taskMeta.beginDate"
+            type="date"
+            readonly
+            placeholder="Start Date"/>
+          &nbsp;&nbsp; End Date:
+          <el-date-picker
+            v-model="template.taskMeta.endDate"
+            type="date"
+            readonly
+            placeholder="Start Date"/>
+          <el-row class="info-row">
+            Repeat: {{ (template.taskMeta.repeat === 0) ? 'No Repeat' : 'Every ' + template.taskMeta.repeat + ' days'}}
           </el-row>
           <el-row class="button-row">
             <el-button type="primary" class="assign-button">Assign to User</el-button>
@@ -26,55 +41,95 @@
         </el-collapse-item>
       </template>
     </el-collapse>
-    <action-button/>
+    <action-button
+      @click="showNewDialog = true"/>
+    
+    <create-task-dialog
+      v-model="showNewDialog"
+      :error="error"
+      @confirm="createTemplate"
+      @clear-error="error = ''"/>
   </div>
 </template>
 
 <script>
 import { TableHeader, ActionButton, SearchBar } from '@/components/elements'
+import { CreateTaskDialog, PriorityTag } from '@/components/tasks'
+import gql from 'graphql-tag'
+
+const createTemplateMutation = gql`
+  mutation createTemplate($title: String!, $description: String!, $priority: Priority!, $repeat: Int!, $beginDate: DateTime!, $endDate: DateTime!) {
+    createTemplate(title: $title, description: $description, priority: $priority, repeat: $repeat, beginDate: $beginDate, endDate: $endDate) {
+      id
+    }
+  }
+`
+
+const templateQuery = gql`
+  query templates($search: String) {
+    templates(search: $search) {
+      id
+      taskMeta {
+        id
+        title
+        description
+        priority
+        beginDate
+        endDate
+        repeat
+      }
+    }
+  }
+`
 
 export default {
   name: 'TemplateList',
   components: {
-    'table-header': TableHeader,
+    'create-task-dialog': CreateTaskDialog,
+    'table-header': TableHeader, 
     'action-button': ActionButton,
-    'search-bar': SearchBar
+    'search-bar': SearchBar,
+    'priority-tag': PriorityTag
+  },
+  apollo: {
+    templates: {
+      query: templateQuery
+    }
   },
   data () {
     return {
       activeName: "1",
-      tasks: [
-        {
-          id: "1",
-          title: 'Task #1 ',
-          description: 'This is a long description but it would fit here for the task......',
-          notes: [
-            {
-              id: "145",
-              date: '2016-05-03',
-              title: 'Status Update',
-              text: 'This is a status update, a real status update would be longer but for now oh well...'
-            },
-            {
-              id: "156",
-              date: '2016-05-03',
-              title: 'Feedback from supervisor',
-              text: 'Here is feedback from supervisor'
-            }
-          ]
-        },
-        {
-          id: "2",
-          title: 'Task #2',
-          description: 'This is a long description but it would fit here for the task......'
-        },
-        {
-          id: "3",
-          title: 'Task #3',
-          description: 'This is a long description but it would fit here for the task......'
+      error: '',
+      loading: false,
+      showNewDialog: false
+    }
+  },
+  methods: {
+    createTemplate ({title, description, priority, beginDate, endDate, repeat}) {
+      this.$apollo.mutate({
+        mutation: createTemplateMutation,
+        variables: {
+          title,
+          description,
+          priority: priority.toUpperCase(),
+          beginDate,
+          endDate,
+          repeat
         }
-      ],
-      search: ''
+      })
+      .then(() => {
+        this.$apollo.queries.templates.refetch()
+        this.showNewDialog = false
+        this.error = ''
+      })
+      .catch(() => {
+        this.error = 'There was an error creating this template'
+      })
+    },
+    search (text) {
+      this.$apollo.queries.templates.refetch({
+        search: text
+      })
     }
   }
 }
@@ -84,7 +139,14 @@ export default {
 .assign-button {
   margin-top: 8px
 }
+.info-row {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
 .template-list {
   text-align: left;
+}
+.title {
+  font-size: 18px;
 }
 </style>

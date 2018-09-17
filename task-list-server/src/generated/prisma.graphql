@@ -1,11 +1,19 @@
 # source: http://localhost:4466/tasks/dev
-# timestamp: Sat Sep 15 2018 21:37:45 GMT-0600 (Mountain Daylight Time)
+# timestamp: Sun Sep 16 2018 14:41:14 GMT-0600 (Mountain Daylight Time)
 
 type AggregateNote {
   count: Int!
 }
 
+type AggregateStatusStat {
+  count: Int!
+}
+
 type AggregateTask {
+  count: Int!
+}
+
+type AggregateTaskMeta {
   count: Int!
 }
 
@@ -34,27 +42,39 @@ type Mutation {
   createUser(data: UserCreateInput!): User!
   createTemplate(data: TemplateCreateInput!): Template!
   createTask(data: TaskCreateInput!): Task!
+  createTaskMeta(data: TaskMetaCreateInput!): TaskMeta!
   createNote(data: NoteCreateInput!): Note!
+  createStatusStat(data: StatusStatCreateInput!): StatusStat!
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
   updateTemplate(data: TemplateUpdateInput!, where: TemplateWhereUniqueInput!): Template
   updateTask(data: TaskUpdateInput!, where: TaskWhereUniqueInput!): Task
+  updateTaskMeta(data: TaskMetaUpdateInput!, where: TaskMetaWhereUniqueInput!): TaskMeta
   updateNote(data: NoteUpdateInput!, where: NoteWhereUniqueInput!): Note
+  updateStatusStat(data: StatusStatUpdateInput!, where: StatusStatWhereUniqueInput!): StatusStat
   deleteUser(where: UserWhereUniqueInput!): User
   deleteTemplate(where: TemplateWhereUniqueInput!): Template
   deleteTask(where: TaskWhereUniqueInput!): Task
+  deleteTaskMeta(where: TaskMetaWhereUniqueInput!): TaskMeta
   deleteNote(where: NoteWhereUniqueInput!): Note
+  deleteStatusStat(where: StatusStatWhereUniqueInput!): StatusStat
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
   upsertTemplate(where: TemplateWhereUniqueInput!, create: TemplateCreateInput!, update: TemplateUpdateInput!): Template!
   upsertTask(where: TaskWhereUniqueInput!, create: TaskCreateInput!, update: TaskUpdateInput!): Task!
+  upsertTaskMeta(where: TaskMetaWhereUniqueInput!, create: TaskMetaCreateInput!, update: TaskMetaUpdateInput!): TaskMeta!
   upsertNote(where: NoteWhereUniqueInput!, create: NoteCreateInput!, update: NoteUpdateInput!): Note!
+  upsertStatusStat(where: StatusStatWhereUniqueInput!, create: StatusStatCreateInput!, update: StatusStatUpdateInput!): StatusStat!
   updateManyUsers(data: UserUpdateInput!, where: UserWhereInput): BatchPayload!
   updateManyTemplates(data: TemplateUpdateInput!, where: TemplateWhereInput): BatchPayload!
   updateManyTasks(data: TaskUpdateInput!, where: TaskWhereInput): BatchPayload!
+  updateManyTaskMetas(data: TaskMetaUpdateInput!, where: TaskMetaWhereInput): BatchPayload!
   updateManyNotes(data: NoteUpdateInput!, where: NoteWhereInput): BatchPayload!
+  updateManyStatusStats(data: StatusStatUpdateInput!, where: StatusStatWhereInput): BatchPayload!
   deleteManyUsers(where: UserWhereInput): BatchPayload!
   deleteManyTemplates(where: TemplateWhereInput): BatchPayload!
   deleteManyTasks(where: TaskWhereInput): BatchPayload!
+  deleteManyTaskMetas(where: TaskMetaWhereInput): BatchPayload!
   deleteManyNotes(where: NoteWhereInput): BatchPayload!
+  deleteManyStatusStats(where: StatusStatWhereInput): BatchPayload!
 }
 
 enum MutationType {
@@ -484,15 +504,21 @@ type Query {
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
   templates(where: TemplateWhereInput, orderBy: TemplateOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Template]!
   tasks(where: TaskWhereInput, orderBy: TaskOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Task]!
+  taskMetas(where: TaskMetaWhereInput, orderBy: TaskMetaOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [TaskMeta]!
   notes(where: NoteWhereInput, orderBy: NoteOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Note]!
+  statusStats(where: StatusStatWhereInput, orderBy: StatusStatOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [StatusStat]!
   user(where: UserWhereUniqueInput!): User
   template(where: TemplateWhereUniqueInput!): Template
   task(where: TaskWhereUniqueInput!): Task
+  taskMeta(where: TaskMetaWhereUniqueInput!): TaskMeta
   note(where: NoteWhereUniqueInput!): Note
+  statusStat(where: StatusStatWhereUniqueInput!): StatusStat
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
   templatesConnection(where: TemplateWhereInput, orderBy: TemplateOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): TemplateConnection!
   tasksConnection(where: TaskWhereInput, orderBy: TaskOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): TaskConnection!
+  taskMetasConnection(where: TaskMetaWhereInput, orderBy: TaskMetaOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): TaskMetaConnection!
   notesConnection(where: NoteWhereInput, orderBy: NoteOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): NoteConnection!
+  statusStatsConnection(where: StatusStatWhereInput, orderBy: StatusStatOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): StatusStatConnection!
 
   """Fetches an object given its ID"""
   node(
@@ -507,21 +533,225 @@ enum Status {
   FINISHED
 }
 
+type StatusStat implements Node {
+  id: ID!
+  taskMeta(where: TaskMetaWhereInput): TaskMeta!
+  newStatus: Status!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A connection to a list of items."""
+type StatusStatConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [StatusStatEdge]!
+  aggregate: AggregateStatusStat!
+}
+
+input StatusStatCreateInput {
+  newStatus: Status!
+  taskMeta: TaskMetaCreateOneInput!
+}
+
+"""An edge in a connection."""
+type StatusStatEdge {
+  """The item at the end of the edge."""
+  node: StatusStat!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
+enum StatusStatOrderByInput {
+  id_ASC
+  id_DESC
+  newStatus_ASC
+  newStatus_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type StatusStatPreviousValues {
+  id: ID!
+  newStatus: Status!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type StatusStatSubscriptionPayload {
+  mutation: MutationType!
+  node: StatusStat
+  updatedFields: [String!]
+  previousValues: StatusStatPreviousValues
+}
+
+input StatusStatSubscriptionWhereInput {
+  """Logical AND on all given filters."""
+  AND: [StatusStatSubscriptionWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [StatusStatSubscriptionWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [StatusStatSubscriptionWhereInput!]
+
+  """
+  The subscription event gets dispatched when it's listed in mutation_in
+  """
+  mutation_in: [MutationType!]
+
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: StatusStatWhereInput
+}
+
+input StatusStatUpdateInput {
+  newStatus: Status
+  taskMeta: TaskMetaUpdateOneInput
+}
+
+input StatusStatWhereInput {
+  """Logical AND on all given filters."""
+  AND: [StatusStatWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [StatusStatWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [StatusStatWhereInput!]
+  id: ID
+
+  """All values that are not equal to given value."""
+  id_not: ID
+
+  """All values that are contained in given list."""
+  id_in: [ID!]
+
+  """All values that are not contained in given list."""
+  id_not_in: [ID!]
+
+  """All values less than the given value."""
+  id_lt: ID
+
+  """All values less than or equal the given value."""
+  id_lte: ID
+
+  """All values greater than the given value."""
+  id_gt: ID
+
+  """All values greater than or equal the given value."""
+  id_gte: ID
+
+  """All values containing the given string."""
+  id_contains: ID
+
+  """All values not containing the given string."""
+  id_not_contains: ID
+
+  """All values starting with the given string."""
+  id_starts_with: ID
+
+  """All values not starting with the given string."""
+  id_not_starts_with: ID
+
+  """All values ending with the given string."""
+  id_ends_with: ID
+
+  """All values not ending with the given string."""
+  id_not_ends_with: ID
+  newStatus: Status
+
+  """All values that are not equal to given value."""
+  newStatus_not: Status
+
+  """All values that are contained in given list."""
+  newStatus_in: [Status!]
+
+  """All values that are not contained in given list."""
+  newStatus_not_in: [Status!]
+  createdAt: DateTime
+
+  """All values that are not equal to given value."""
+  createdAt_not: DateTime
+
+  """All values that are contained in given list."""
+  createdAt_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  createdAt_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  createdAt_lt: DateTime
+
+  """All values less than or equal the given value."""
+  createdAt_lte: DateTime
+
+  """All values greater than the given value."""
+  createdAt_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+
+  """All values that are not equal to given value."""
+  updatedAt_not: DateTime
+
+  """All values that are contained in given list."""
+  updatedAt_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  updatedAt_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  updatedAt_lt: DateTime
+
+  """All values less than or equal the given value."""
+  updatedAt_lte: DateTime
+
+  """All values greater than the given value."""
+  updatedAt_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  updatedAt_gte: DateTime
+  taskMeta: TaskMetaWhereInput
+}
+
+input StatusStatWhereUniqueInput {
+  id: ID
+}
+
 type Subscription {
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
   template(where: TemplateSubscriptionWhereInput): TemplateSubscriptionPayload
   task(where: TaskSubscriptionWhereInput): TaskSubscriptionPayload
+  taskMeta(where: TaskMetaSubscriptionWhereInput): TaskMetaSubscriptionPayload
   note(where: NoteSubscriptionWhereInput): NoteSubscriptionPayload
+  statusStat(where: StatusStatSubscriptionWhereInput): StatusStatSubscriptionPayload
 }
 
 type Task implements Node {
   id: ID!
-  title: String!
-  description: String!
+  taskMeta(where: TaskMetaWhereInput): TaskMeta!
   notes(where: NoteWhereInput, orderBy: NoteOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Note!]
   user(where: UserWhereInput): User!
   assigned: Boolean!
-  priority: Priority!
   status: Status!
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -538,13 +768,16 @@ type TaskConnection {
 }
 
 input TaskCreateInput {
-  title: String!
-  description: String!
   assigned: Boolean
-  priority: Priority
   status: Status
+  taskMeta: TaskMetaCreateOneWithoutTasksInput!
   notes: NoteCreateManyWithoutTaskInput
   user: UserCreateOneWithoutTasksInput!
+}
+
+input TaskCreateManyWithoutTaskMetaInput {
+  create: [TaskCreateWithoutTaskMetaInput!]
+  connect: [TaskWhereUniqueInput!]
 }
 
 input TaskCreateManyWithoutUserInput {
@@ -558,20 +791,23 @@ input TaskCreateOneWithoutNotesInput {
 }
 
 input TaskCreateWithoutNotesInput {
-  title: String!
-  description: String!
   assigned: Boolean
-  priority: Priority
   status: Status
+  taskMeta: TaskMetaCreateOneWithoutTasksInput!
+  user: UserCreateOneWithoutTasksInput!
+}
+
+input TaskCreateWithoutTaskMetaInput {
+  assigned: Boolean
+  status: Status
+  notes: NoteCreateManyWithoutTaskInput
   user: UserCreateOneWithoutTasksInput!
 }
 
 input TaskCreateWithoutUserInput {
-  title: String!
-  description: String!
   assigned: Boolean
-  priority: Priority
   status: Status
+  taskMeta: TaskMetaCreateOneWithoutTasksInput!
   notes: NoteCreateManyWithoutTaskInput
 }
 
@@ -584,17 +820,454 @@ type TaskEdge {
   cursor: String!
 }
 
-enum TaskOrderByInput {
+type TaskMeta implements Node {
+  id: ID!
+  title: String!
+  description: String!
+  priority: Priority!
+  beginDate: DateTime!
+  endDate: DateTime!
+  repeat: Int!
+  tasks(where: TaskWhereInput, orderBy: TaskOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Task!]
+  template(where: TemplateWhereInput): Template
+}
+
+"""A connection to a list of items."""
+type TaskMetaConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [TaskMetaEdge]!
+  aggregate: AggregateTaskMeta!
+}
+
+input TaskMetaCreateInput {
+  title: String!
+  description: String!
+  priority: Priority
+  beginDate: DateTime!
+  endDate: DateTime!
+  repeat: Int!
+  tasks: TaskCreateManyWithoutTaskMetaInput
+  template: TemplateCreateOneWithoutTaskMetaInput
+}
+
+input TaskMetaCreateOneInput {
+  create: TaskMetaCreateInput
+  connect: TaskMetaWhereUniqueInput
+}
+
+input TaskMetaCreateOneWithoutTasksInput {
+  create: TaskMetaCreateWithoutTasksInput
+  connect: TaskMetaWhereUniqueInput
+}
+
+input TaskMetaCreateOneWithoutTemplateInput {
+  create: TaskMetaCreateWithoutTemplateInput
+  connect: TaskMetaWhereUniqueInput
+}
+
+input TaskMetaCreateWithoutTasksInput {
+  title: String!
+  description: String!
+  priority: Priority
+  beginDate: DateTime!
+  endDate: DateTime!
+  repeat: Int!
+  template: TemplateCreateOneWithoutTaskMetaInput
+}
+
+input TaskMetaCreateWithoutTemplateInput {
+  title: String!
+  description: String!
+  priority: Priority
+  beginDate: DateTime!
+  endDate: DateTime!
+  repeat: Int!
+  tasks: TaskCreateManyWithoutTaskMetaInput
+}
+
+"""An edge in a connection."""
+type TaskMetaEdge {
+  """The item at the end of the edge."""
+  node: TaskMeta!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
+enum TaskMetaOrderByInput {
   id_ASC
   id_DESC
   title_ASC
   title_DESC
   description_ASC
   description_DESC
-  assigned_ASC
-  assigned_DESC
   priority_ASC
   priority_DESC
+  beginDate_ASC
+  beginDate_DESC
+  endDate_ASC
+  endDate_DESC
+  repeat_ASC
+  repeat_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type TaskMetaPreviousValues {
+  id: ID!
+  title: String!
+  description: String!
+  priority: Priority!
+  beginDate: DateTime!
+  endDate: DateTime!
+  repeat: Int!
+}
+
+type TaskMetaSubscriptionPayload {
+  mutation: MutationType!
+  node: TaskMeta
+  updatedFields: [String!]
+  previousValues: TaskMetaPreviousValues
+}
+
+input TaskMetaSubscriptionWhereInput {
+  """Logical AND on all given filters."""
+  AND: [TaskMetaSubscriptionWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [TaskMetaSubscriptionWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [TaskMetaSubscriptionWhereInput!]
+
+  """
+  The subscription event gets dispatched when it's listed in mutation_in
+  """
+  mutation_in: [MutationType!]
+
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: TaskMetaWhereInput
+}
+
+input TaskMetaUpdateDataInput {
+  title: String
+  description: String
+  priority: Priority
+  beginDate: DateTime
+  endDate: DateTime
+  repeat: Int
+  tasks: TaskUpdateManyWithoutTaskMetaInput
+  template: TemplateUpdateOneWithoutTaskMetaInput
+}
+
+input TaskMetaUpdateInput {
+  title: String
+  description: String
+  priority: Priority
+  beginDate: DateTime
+  endDate: DateTime
+  repeat: Int
+  tasks: TaskUpdateManyWithoutTaskMetaInput
+  template: TemplateUpdateOneWithoutTaskMetaInput
+}
+
+input TaskMetaUpdateOneInput {
+  create: TaskMetaCreateInput
+  connect: TaskMetaWhereUniqueInput
+  delete: Boolean
+  update: TaskMetaUpdateDataInput
+  upsert: TaskMetaUpsertNestedInput
+}
+
+input TaskMetaUpdateOneWithoutTasksInput {
+  create: TaskMetaCreateWithoutTasksInput
+  connect: TaskMetaWhereUniqueInput
+  delete: Boolean
+  update: TaskMetaUpdateWithoutTasksDataInput
+  upsert: TaskMetaUpsertWithoutTasksInput
+}
+
+input TaskMetaUpdateOneWithoutTemplateInput {
+  create: TaskMetaCreateWithoutTemplateInput
+  connect: TaskMetaWhereUniqueInput
+  delete: Boolean
+  update: TaskMetaUpdateWithoutTemplateDataInput
+  upsert: TaskMetaUpsertWithoutTemplateInput
+}
+
+input TaskMetaUpdateWithoutTasksDataInput {
+  title: String
+  description: String
+  priority: Priority
+  beginDate: DateTime
+  endDate: DateTime
+  repeat: Int
+  template: TemplateUpdateOneWithoutTaskMetaInput
+}
+
+input TaskMetaUpdateWithoutTemplateDataInput {
+  title: String
+  description: String
+  priority: Priority
+  beginDate: DateTime
+  endDate: DateTime
+  repeat: Int
+  tasks: TaskUpdateManyWithoutTaskMetaInput
+}
+
+input TaskMetaUpsertNestedInput {
+  update: TaskMetaUpdateDataInput!
+  create: TaskMetaCreateInput!
+}
+
+input TaskMetaUpsertWithoutTasksInput {
+  update: TaskMetaUpdateWithoutTasksDataInput!
+  create: TaskMetaCreateWithoutTasksInput!
+}
+
+input TaskMetaUpsertWithoutTemplateInput {
+  update: TaskMetaUpdateWithoutTemplateDataInput!
+  create: TaskMetaCreateWithoutTemplateInput!
+}
+
+input TaskMetaWhereInput {
+  """Logical AND on all given filters."""
+  AND: [TaskMetaWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [TaskMetaWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [TaskMetaWhereInput!]
+  id: ID
+
+  """All values that are not equal to given value."""
+  id_not: ID
+
+  """All values that are contained in given list."""
+  id_in: [ID!]
+
+  """All values that are not contained in given list."""
+  id_not_in: [ID!]
+
+  """All values less than the given value."""
+  id_lt: ID
+
+  """All values less than or equal the given value."""
+  id_lte: ID
+
+  """All values greater than the given value."""
+  id_gt: ID
+
+  """All values greater than or equal the given value."""
+  id_gte: ID
+
+  """All values containing the given string."""
+  id_contains: ID
+
+  """All values not containing the given string."""
+  id_not_contains: ID
+
+  """All values starting with the given string."""
+  id_starts_with: ID
+
+  """All values not starting with the given string."""
+  id_not_starts_with: ID
+
+  """All values ending with the given string."""
+  id_ends_with: ID
+
+  """All values not ending with the given string."""
+  id_not_ends_with: ID
+  title: String
+
+  """All values that are not equal to given value."""
+  title_not: String
+
+  """All values that are contained in given list."""
+  title_in: [String!]
+
+  """All values that are not contained in given list."""
+  title_not_in: [String!]
+
+  """All values less than the given value."""
+  title_lt: String
+
+  """All values less than or equal the given value."""
+  title_lte: String
+
+  """All values greater than the given value."""
+  title_gt: String
+
+  """All values greater than or equal the given value."""
+  title_gte: String
+
+  """All values containing the given string."""
+  title_contains: String
+
+  """All values not containing the given string."""
+  title_not_contains: String
+
+  """All values starting with the given string."""
+  title_starts_with: String
+
+  """All values not starting with the given string."""
+  title_not_starts_with: String
+
+  """All values ending with the given string."""
+  title_ends_with: String
+
+  """All values not ending with the given string."""
+  title_not_ends_with: String
+  description: String
+
+  """All values that are not equal to given value."""
+  description_not: String
+
+  """All values that are contained in given list."""
+  description_in: [String!]
+
+  """All values that are not contained in given list."""
+  description_not_in: [String!]
+
+  """All values less than the given value."""
+  description_lt: String
+
+  """All values less than or equal the given value."""
+  description_lte: String
+
+  """All values greater than the given value."""
+  description_gt: String
+
+  """All values greater than or equal the given value."""
+  description_gte: String
+
+  """All values containing the given string."""
+  description_contains: String
+
+  """All values not containing the given string."""
+  description_not_contains: String
+
+  """All values starting with the given string."""
+  description_starts_with: String
+
+  """All values not starting with the given string."""
+  description_not_starts_with: String
+
+  """All values ending with the given string."""
+  description_ends_with: String
+
+  """All values not ending with the given string."""
+  description_not_ends_with: String
+  priority: Priority
+
+  """All values that are not equal to given value."""
+  priority_not: Priority
+
+  """All values that are contained in given list."""
+  priority_in: [Priority!]
+
+  """All values that are not contained in given list."""
+  priority_not_in: [Priority!]
+  beginDate: DateTime
+
+  """All values that are not equal to given value."""
+  beginDate_not: DateTime
+
+  """All values that are contained in given list."""
+  beginDate_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  beginDate_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  beginDate_lt: DateTime
+
+  """All values less than or equal the given value."""
+  beginDate_lte: DateTime
+
+  """All values greater than the given value."""
+  beginDate_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  beginDate_gte: DateTime
+  endDate: DateTime
+
+  """All values that are not equal to given value."""
+  endDate_not: DateTime
+
+  """All values that are contained in given list."""
+  endDate_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  endDate_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  endDate_lt: DateTime
+
+  """All values less than or equal the given value."""
+  endDate_lte: DateTime
+
+  """All values greater than the given value."""
+  endDate_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  endDate_gte: DateTime
+  repeat: Int
+
+  """All values that are not equal to given value."""
+  repeat_not: Int
+
+  """All values that are contained in given list."""
+  repeat_in: [Int!]
+
+  """All values that are not contained in given list."""
+  repeat_not_in: [Int!]
+
+  """All values less than the given value."""
+  repeat_lt: Int
+
+  """All values less than or equal the given value."""
+  repeat_lte: Int
+
+  """All values greater than the given value."""
+  repeat_gt: Int
+
+  """All values greater than or equal the given value."""
+  repeat_gte: Int
+  tasks_every: TaskWhereInput
+  tasks_some: TaskWhereInput
+  tasks_none: TaskWhereInput
+  template: TemplateWhereInput
+}
+
+input TaskMetaWhereUniqueInput {
+  id: ID
+}
+
+enum TaskOrderByInput {
+  id_ASC
+  id_DESC
+  assigned_ASC
+  assigned_DESC
   status_ASC
   status_DESC
   createdAt_ASC
@@ -605,10 +1278,7 @@ enum TaskOrderByInput {
 
 type TaskPreviousValues {
   id: ID!
-  title: String!
-  description: String!
   assigned: Boolean!
-  priority: Priority!
   status: Status!
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -654,13 +1324,20 @@ input TaskSubscriptionWhereInput {
 }
 
 input TaskUpdateInput {
-  title: String
-  description: String
   assigned: Boolean
-  priority: Priority
   status: Status
+  taskMeta: TaskMetaUpdateOneWithoutTasksInput
   notes: NoteUpdateManyWithoutTaskInput
   user: UserUpdateOneWithoutTasksInput
+}
+
+input TaskUpdateManyWithoutTaskMetaInput {
+  create: [TaskCreateWithoutTaskMetaInput!]
+  connect: [TaskWhereUniqueInput!]
+  disconnect: [TaskWhereUniqueInput!]
+  delete: [TaskWhereUniqueInput!]
+  update: [TaskUpdateWithWhereUniqueWithoutTaskMetaInput!]
+  upsert: [TaskUpsertWithWhereUniqueWithoutTaskMetaInput!]
 }
 
 input TaskUpdateManyWithoutUserInput {
@@ -681,21 +1358,29 @@ input TaskUpdateOneWithoutNotesInput {
 }
 
 input TaskUpdateWithoutNotesDataInput {
-  title: String
-  description: String
   assigned: Boolean
-  priority: Priority
   status: Status
+  taskMeta: TaskMetaUpdateOneWithoutTasksInput
+  user: UserUpdateOneWithoutTasksInput
+}
+
+input TaskUpdateWithoutTaskMetaDataInput {
+  assigned: Boolean
+  status: Status
+  notes: NoteUpdateManyWithoutTaskInput
   user: UserUpdateOneWithoutTasksInput
 }
 
 input TaskUpdateWithoutUserDataInput {
-  title: String
-  description: String
   assigned: Boolean
-  priority: Priority
   status: Status
+  taskMeta: TaskMetaUpdateOneWithoutTasksInput
   notes: NoteUpdateManyWithoutTaskInput
+}
+
+input TaskUpdateWithWhereUniqueWithoutTaskMetaInput {
+  where: TaskWhereUniqueInput!
+  data: TaskUpdateWithoutTaskMetaDataInput!
 }
 
 input TaskUpdateWithWhereUniqueWithoutUserInput {
@@ -706,6 +1391,12 @@ input TaskUpdateWithWhereUniqueWithoutUserInput {
 input TaskUpsertWithoutNotesInput {
   update: TaskUpdateWithoutNotesDataInput!
   create: TaskCreateWithoutNotesInput!
+}
+
+input TaskUpsertWithWhereUniqueWithoutTaskMetaInput {
+  where: TaskWhereUniqueInput!
+  update: TaskUpdateWithoutTaskMetaDataInput!
+  create: TaskCreateWithoutTaskMetaInput!
 }
 
 input TaskUpsertWithWhereUniqueWithoutUserInput {
@@ -763,100 +1454,10 @@ input TaskWhereInput {
 
   """All values not ending with the given string."""
   id_not_ends_with: ID
-  title: String
-
-  """All values that are not equal to given value."""
-  title_not: String
-
-  """All values that are contained in given list."""
-  title_in: [String!]
-
-  """All values that are not contained in given list."""
-  title_not_in: [String!]
-
-  """All values less than the given value."""
-  title_lt: String
-
-  """All values less than or equal the given value."""
-  title_lte: String
-
-  """All values greater than the given value."""
-  title_gt: String
-
-  """All values greater than or equal the given value."""
-  title_gte: String
-
-  """All values containing the given string."""
-  title_contains: String
-
-  """All values not containing the given string."""
-  title_not_contains: String
-
-  """All values starting with the given string."""
-  title_starts_with: String
-
-  """All values not starting with the given string."""
-  title_not_starts_with: String
-
-  """All values ending with the given string."""
-  title_ends_with: String
-
-  """All values not ending with the given string."""
-  title_not_ends_with: String
-  description: String
-
-  """All values that are not equal to given value."""
-  description_not: String
-
-  """All values that are contained in given list."""
-  description_in: [String!]
-
-  """All values that are not contained in given list."""
-  description_not_in: [String!]
-
-  """All values less than the given value."""
-  description_lt: String
-
-  """All values less than or equal the given value."""
-  description_lte: String
-
-  """All values greater than the given value."""
-  description_gt: String
-
-  """All values greater than or equal the given value."""
-  description_gte: String
-
-  """All values containing the given string."""
-  description_contains: String
-
-  """All values not containing the given string."""
-  description_not_contains: String
-
-  """All values starting with the given string."""
-  description_starts_with: String
-
-  """All values not starting with the given string."""
-  description_not_starts_with: String
-
-  """All values ending with the given string."""
-  description_ends_with: String
-
-  """All values not ending with the given string."""
-  description_not_ends_with: String
   assigned: Boolean
 
   """All values that are not equal to given value."""
   assigned_not: Boolean
-  priority: Priority
-
-  """All values that are not equal to given value."""
-  priority_not: Priority
-
-  """All values that are contained in given list."""
-  priority_in: [Priority!]
-
-  """All values that are not contained in given list."""
-  priority_not_in: [Priority!]
   status: Status
 
   """All values that are not equal to given value."""
@@ -911,6 +1512,7 @@ input TaskWhereInput {
 
   """All values greater than or equal the given value."""
   updatedAt_gte: DateTime
+  taskMeta: TaskMetaWhereInput
   notes_every: NoteWhereInput
   notes_some: NoteWhereInput
   notes_none: NoteWhereInput
@@ -923,9 +1525,7 @@ input TaskWhereUniqueInput {
 
 type Template implements Node {
   id: ID!
-  title: String!
-  description: String!
-  priority: Priority!
+  taskMeta(where: TaskMetaWhereInput): TaskMeta!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -941,9 +1541,11 @@ type TemplateConnection {
 }
 
 input TemplateCreateInput {
-  title: String!
-  description: String!
-  priority: Priority
+  taskMeta: TaskMetaCreateOneWithoutTemplateInput!
+}
+
+input TemplateCreateOneWithoutTaskMetaInput {
+  connect: TemplateWhereUniqueInput
 }
 
 """An edge in a connection."""
@@ -958,12 +1560,6 @@ type TemplateEdge {
 enum TemplateOrderByInput {
   id_ASC
   id_DESC
-  title_ASC
-  title_DESC
-  description_ASC
-  description_DESC
-  priority_ASC
-  priority_DESC
   createdAt_ASC
   createdAt_DESC
   updatedAt_ASC
@@ -972,9 +1568,6 @@ enum TemplateOrderByInput {
 
 type TemplatePreviousValues {
   id: ID!
-  title: String!
-  description: String!
-  priority: Priority!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -1019,9 +1612,13 @@ input TemplateSubscriptionWhereInput {
 }
 
 input TemplateUpdateInput {
-  title: String
-  description: String
-  priority: Priority
+  taskMeta: TaskMetaUpdateOneWithoutTemplateInput
+}
+
+input TemplateUpdateOneWithoutTaskMetaInput {
+  connect: TemplateWhereUniqueInput
+  disconnect: Boolean
+  delete: Boolean
 }
 
 input TemplateWhereInput {
@@ -1073,96 +1670,6 @@ input TemplateWhereInput {
 
   """All values not ending with the given string."""
   id_not_ends_with: ID
-  title: String
-
-  """All values that are not equal to given value."""
-  title_not: String
-
-  """All values that are contained in given list."""
-  title_in: [String!]
-
-  """All values that are not contained in given list."""
-  title_not_in: [String!]
-
-  """All values less than the given value."""
-  title_lt: String
-
-  """All values less than or equal the given value."""
-  title_lte: String
-
-  """All values greater than the given value."""
-  title_gt: String
-
-  """All values greater than or equal the given value."""
-  title_gte: String
-
-  """All values containing the given string."""
-  title_contains: String
-
-  """All values not containing the given string."""
-  title_not_contains: String
-
-  """All values starting with the given string."""
-  title_starts_with: String
-
-  """All values not starting with the given string."""
-  title_not_starts_with: String
-
-  """All values ending with the given string."""
-  title_ends_with: String
-
-  """All values not ending with the given string."""
-  title_not_ends_with: String
-  description: String
-
-  """All values that are not equal to given value."""
-  description_not: String
-
-  """All values that are contained in given list."""
-  description_in: [String!]
-
-  """All values that are not contained in given list."""
-  description_not_in: [String!]
-
-  """All values less than the given value."""
-  description_lt: String
-
-  """All values less than or equal the given value."""
-  description_lte: String
-
-  """All values greater than the given value."""
-  description_gt: String
-
-  """All values greater than or equal the given value."""
-  description_gte: String
-
-  """All values containing the given string."""
-  description_contains: String
-
-  """All values not containing the given string."""
-  description_not_contains: String
-
-  """All values starting with the given string."""
-  description_starts_with: String
-
-  """All values not starting with the given string."""
-  description_not_starts_with: String
-
-  """All values ending with the given string."""
-  description_ends_with: String
-
-  """All values not ending with the given string."""
-  description_not_ends_with: String
-  priority: Priority
-
-  """All values that are not equal to given value."""
-  priority_not: Priority
-
-  """All values that are contained in given list."""
-  priority_in: [Priority!]
-
-  """All values that are not contained in given list."""
-  priority_not_in: [Priority!]
   createdAt: DateTime
 
   """All values that are not equal to given value."""
@@ -1207,6 +1714,7 @@ input TemplateWhereInput {
 
   """All values greater than or equal the given value."""
   updatedAt_gte: DateTime
+  taskMeta: TaskMetaWhereInput
 }
 
 input TemplateWhereUniqueInput {

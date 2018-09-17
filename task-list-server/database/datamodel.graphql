@@ -12,24 +12,32 @@ type User {
 
 type Template {
   id: ID! @unique
-  title: String!
-  description: String!
-  priority: Priority! @default(value: "LOW")
+  taskMeta: TaskMeta! @relation(name: "TemplateTaskMeta")
   createdAt: DateTime!
   updatedAt: DateTime!
 }
 
 type Task {
   id: ID! @unique
-  title: String!
-  description: String!
+  taskMeta: TaskMeta! @relation(name: "MetaTasks")
   notes: [Note!]! @relation(name: "TaskNotes")
   user: User! @relation(name: "UserTasks")
   assigned: Boolean! @default(value: "false")
-  priority: Priority! @default(value: "LOW")
   status: Status! @default(value: "READY")
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+type TaskMeta {
+  id: ID! @unique
+  title: String!
+  description: String!
+  priority: Priority! @default(value: "LOW")
+  beginDate: DateTime!
+  endDate: DateTime!
+  repeat: Int!
+  tasks: [Task!]! @relation(name: "MetaTasks")
+  template: Template @relation(name: "TemplateTaskMeta")
 }
 
 type Note {
@@ -41,6 +49,14 @@ type Note {
   author: User! @relation(name: "UserWrittenNotes")
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+type StatusStat {
+  id: ID! @unique
+  taskMeta: TaskMeta!
+  newStatus: Status!
+  createdAt: DateTime!
+  updatedAt: DateTime!  
 }
 
 enum Priority {

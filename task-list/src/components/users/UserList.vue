@@ -59,13 +59,25 @@ const usersQuery = gql`
     users(search: $search) {
       name
       email
-      tasks(where: {assigned:true}) {
-        title
-        description
+      tasks(where: {assigned: true}) {
+        id
+        taskMeta {
+          title
+          description
+          priority
+          beginDate
+          endDate
+        }
+        status
         notes {
+          id
           date
           title
           text
+          author {
+            id
+            name
+          }
         }
       }
     }
@@ -129,8 +141,7 @@ export default {
     },
     search (text) {
       this.$apollo.queries.users.refetch({
-          search: text,
-          loadingKey: 'loading'
+        search: text
       })
     }
   }

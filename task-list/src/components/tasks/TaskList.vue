@@ -2,6 +2,7 @@
   <div class="task-list">
     <table-header text="Tasks to Complete"/>
     <task-table 
+      class="task-table"
       v-if="currentUser && currentUser.tasks && currentUser.tasks.length > 0" 
       :tasks="currentUser.tasks"
       @change="$apollo.queries.currentUser.refetch()"/>
@@ -32,8 +33,14 @@ const currentUserQuery = gql`
       id
       tasks(where: {assigned: $assigned}) {
         id
-        title
-        description
+        taskMeta {
+          title
+          description
+          priority
+          beginDate
+          endDate
+        }
+        status
         notes {
           id
           date
@@ -50,8 +57,8 @@ const currentUserQuery = gql`
 `
 
 const createTaskMutation = gql`
-  mutation createTask($title: String!, $description: String!, $priority: Priority!) {
-    createTask(title: $title, description: $description, priority: $priority) {
+  mutation createTask($title: String!, $description: String!, $priority: Priority!, $repeat: Int!, $beginDate: DateTime!, $endDate: DateTime!) {
+    createTask(title: $title, description: $description, priority: $priority, repeat: $repeat, beginDate: $beginDate, endDate: $endDate) {
       id
     }
   }
@@ -87,13 +94,16 @@ export default {
     }
   },
   methods: {
-    createTask (title, description, priority) {
+    createTask ({title, description, priority, beginDate, endDate, repeat}) {
       this.$apollo.mutate({
         mutation: createTaskMutation,
         variables: {
-          title: title,
-          description: description,
-          priority: priority.toUpperCase()
+          title,
+          description,
+          priority: priority.toUpperCase(),
+          beginDate,
+          endDate,
+          repeat
         }
       })
         .then(() => {
@@ -112,5 +122,8 @@ export default {
 <style scoped>
 .task-list {
   text-align: left;
+}
+.task-table {
+  margin-left: 16px;
 }
 </style>

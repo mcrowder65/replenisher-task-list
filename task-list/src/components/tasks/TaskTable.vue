@@ -6,21 +6,33 @@
           :name="task.id"
           :key="task.id">
           <template slot="title">
-              <span class="title">{{ task.title }}</span>
+              <span class="title">{{ task.taskMeta.title }}</span>
+              <priority-tag :task="task"/>
           </template>
-          12/30/2018 - 01/01/2019 <br>
           <el-row class="info-row">
-            Description: {{ task.description }}
+            Description: {{ task.taskMeta.description }}
           </el-row>
+          Start Date:
+          <el-date-picker
+            v-model="task.taskMeta.beginDate"
+            type="date"
+            readonly
+            placeholder="Start Date"/>
+          &nbsp;&nbsp; End Date:
+          <el-date-picker
+            v-model="task.taskMeta.endDate"
+            type="date"
+            readonly
+            placeholder="Start Date"/>
           <el-row type="flex" class="info-row">
             Status: 
-            <el-progress 
-              :text-inside="true" 
-              :stroke-width="18" 
-              :percentage="70"
-              class="progress-bar"
-              />
+            <el-steps :active="status.indexOf(task.status)" class="progress-bar" finish-status="success">
+              <el-step title="Ready for Work"></el-step>
+              <el-step title="In Progress"></el-step>
+              <el-step title="Finished" :status="task.status === 'FINISHED' ? 'success' : ''"></el-step>
+            </el-steps>
           </el-row>
+          Notes:
           <el-table
             v-if="task.notes && task.notes.length > 0"
             :expand-row-keys="[task.notes[0].id]"
@@ -74,8 +86,9 @@
             <el-button
               type="primary"
               icon="el-icon-caret-right"
-              circle></el-button>
-            <el-button type="success" icon="el-icon-check" circle></el-button>
+              circle
+              @click.native="updateStatus(task)"/>
+            <!-- <el-button type="success" icon="el-icon-check" circle></el-button> -->
           </el-row>
         </el-collapse-item>
       </template>
@@ -96,12 +109,21 @@
 <script>
 import gql from 'graphql-tag'
 import CreateNoteDialog from './CreateNoteDialog.vue'
+import PriorityTag from './PriorityTag.vue'
 
 const currentUserQuery = gql`
   query currentUser {
     currentUser {
       id
       admin
+    }
+  }
+`
+
+const updateTaskMutation = gql`
+  mutation updateTask($id: ID!, $status: Status) {
+    updateTask(id: $id, status: $status) {
+      id
     }
   }
 `
@@ -137,7 +159,8 @@ export default {
     }
   },
   components: {
-    'create-note-dialog': CreateNoteDialog
+    'create-note-dialog': CreateNoteDialog,
+    'priority-tag': PriorityTag
   },
   apollo: {
     currentUser: {
@@ -147,6 +170,7 @@ export default {
   data () {
     return {
       activeName: "",
+      status: ['READY', 'STARTED', 'FINISHED'],
       currentNote: null,
       error: '',
       showNoteDialog: false,
@@ -154,18 +178,6 @@ export default {
     }
   },
   methods: {
-    deleteNote (id) {
-      this.$apollo.mutate({
-        mutation: deleteNoteMutation,
-        variables: {
-          id
-        }
-      })
-        .then(({data}) => {
-          this.$emit('change')
-        })
-    },
-
     createNote (title, text) {
       this.$apollo.mutate({
         mutation: this.currentNote ? updateNoteMutation : createNoteMutation,
@@ -175,7 +187,7 @@ export default {
           id: this.currentNote ? this.currentNote.id : this.currentTask.id
         }
       })
-        .then(({data}) => {
+        .then(() => {
           this.$emit('change')
           this.showNoteDialog = false
           this.error = ''
@@ -183,6 +195,33 @@ export default {
         })
         .catch(() => {
           this.error = 'There was an error creating this note'
+        })
+    },
+    
+    deleteNote (id) {
+      this.$apollo.mutate({
+        mutation: deleteNoteMutation,
+        variables: {
+          id
+        }
+      })
+        .then(() => {
+          this.$emit('change')
+        })
+    },
+
+    updateStatus ({id, status}) {
+      let index = this.status.indexOf(status)
+      if (index === this.status.length - 1) return
+      this.$apollo.mutate({
+        mutation: updateTaskMutation,
+        variables: {
+          id,
+          status: this.status[(index + 1)]
+        }
+      })
+        .then(() => {
+          this.$emit('change')
         })
     }
   }
@@ -194,7 +233,8 @@ export default {
   margin: 16px 0 0 8px;
 }
 .info-row {
-  margin-top: 8px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 .note-icon {
   margin-left: 8px;
@@ -203,7 +243,7 @@ export default {
 .progress-bar {
   margin-left: 16px;
   margin-bottom: 8px;
-  width: 300px;
+  width: 400px;
 }
 .title {
   font-size: 18px;
