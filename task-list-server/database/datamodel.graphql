@@ -24,6 +24,8 @@ type Task {
   user: User! @relation(name: "UserTasks")
   assigned: Boolean! @default(value: "false")
   status: Status! @default(value: "READY")
+  beginDate: DateTime!
+  endDate: DateTime!
   createdAt: DateTime!
   updatedAt: DateTime!
 }

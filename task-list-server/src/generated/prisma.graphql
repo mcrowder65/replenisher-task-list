@@ -1,5 +1,5 @@
 # source: http://localhost:4466/tasks/dev
-# timestamp: Sun Sep 16 2018 14:41:14 GMT-0600 (Mountain Daylight Time)
+# timestamp: Tue Sep 18 2018 00:20:55 GMT-0600 (Mountain Daylight Time)
 
 type AggregateNote {
   count: Int!
@@ -753,6 +753,8 @@ type Task implements Node {
   user(where: UserWhereInput): User!
   assigned: Boolean!
   status: Status!
+  beginDate: DateTime!
+  endDate: DateTime!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -770,6 +772,8 @@ type TaskConnection {
 input TaskCreateInput {
   assigned: Boolean
   status: Status
+  beginDate: DateTime!
+  endDate: DateTime!
   taskMeta: TaskMetaCreateOneWithoutTasksInput!
   notes: NoteCreateManyWithoutTaskInput
   user: UserCreateOneWithoutTasksInput!
@@ -793,6 +797,8 @@ input TaskCreateOneWithoutNotesInput {
 input TaskCreateWithoutNotesInput {
   assigned: Boolean
   status: Status
+  beginDate: DateTime!
+  endDate: DateTime!
   taskMeta: TaskMetaCreateOneWithoutTasksInput!
   user: UserCreateOneWithoutTasksInput!
 }
@@ -800,6 +806,8 @@ input TaskCreateWithoutNotesInput {
 input TaskCreateWithoutTaskMetaInput {
   assigned: Boolean
   status: Status
+  beginDate: DateTime!
+  endDate: DateTime!
   notes: NoteCreateManyWithoutTaskInput
   user: UserCreateOneWithoutTasksInput!
 }
@@ -807,6 +815,8 @@ input TaskCreateWithoutTaskMetaInput {
 input TaskCreateWithoutUserInput {
   assigned: Boolean
   status: Status
+  beginDate: DateTime!
+  endDate: DateTime!
   taskMeta: TaskMetaCreateOneWithoutTasksInput!
   notes: NoteCreateManyWithoutTaskInput
 }
@@ -1270,6 +1280,10 @@ enum TaskOrderByInput {
   assigned_DESC
   status_ASC
   status_DESC
+  beginDate_ASC
+  beginDate_DESC
+  endDate_ASC
+  endDate_DESC
   createdAt_ASC
   createdAt_DESC
   updatedAt_ASC
@@ -1280,6 +1294,8 @@ type TaskPreviousValues {
   id: ID!
   assigned: Boolean!
   status: Status!
+  beginDate: DateTime!
+  endDate: DateTime!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -1326,6 +1342,8 @@ input TaskSubscriptionWhereInput {
 input TaskUpdateInput {
   assigned: Boolean
   status: Status
+  beginDate: DateTime
+  endDate: DateTime
   taskMeta: TaskMetaUpdateOneWithoutTasksInput
   notes: NoteUpdateManyWithoutTaskInput
   user: UserUpdateOneWithoutTasksInput
@@ -1360,6 +1378,8 @@ input TaskUpdateOneWithoutNotesInput {
 input TaskUpdateWithoutNotesDataInput {
   assigned: Boolean
   status: Status
+  beginDate: DateTime
+  endDate: DateTime
   taskMeta: TaskMetaUpdateOneWithoutTasksInput
   user: UserUpdateOneWithoutTasksInput
 }
@@ -1367,6 +1387,8 @@ input TaskUpdateWithoutNotesDataInput {
 input TaskUpdateWithoutTaskMetaDataInput {
   assigned: Boolean
   status: Status
+  beginDate: DateTime
+  endDate: DateTime
   notes: NoteUpdateManyWithoutTaskInput
   user: UserUpdateOneWithoutTasksInput
 }
@@ -1374,6 +1396,8 @@ input TaskUpdateWithoutTaskMetaDataInput {
 input TaskUpdateWithoutUserDataInput {
   assigned: Boolean
   status: Status
+  beginDate: DateTime
+  endDate: DateTime
   taskMeta: TaskMetaUpdateOneWithoutTasksInput
   notes: NoteUpdateManyWithoutTaskInput
 }
@@ -1468,6 +1492,50 @@ input TaskWhereInput {
 
   """All values that are not contained in given list."""
   status_not_in: [Status!]
+  beginDate: DateTime
+
+  """All values that are not equal to given value."""
+  beginDate_not: DateTime
+
+  """All values that are contained in given list."""
+  beginDate_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  beginDate_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  beginDate_lt: DateTime
+
+  """All values less than or equal the given value."""
+  beginDate_lte: DateTime
+
+  """All values greater than the given value."""
+  beginDate_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  beginDate_gte: DateTime
+  endDate: DateTime
+
+  """All values that are not equal to given value."""
+  endDate_not: DateTime
+
+  """All values that are contained in given list."""
+  endDate_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  endDate_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  endDate_lt: DateTime
+
+  """All values less than or equal the given value."""
+  endDate_lte: DateTime
+
+  """All values greater than the given value."""
+  endDate_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  endDate_gte: DateTime
   createdAt: DateTime
 
   """All values that are not equal to given value."""

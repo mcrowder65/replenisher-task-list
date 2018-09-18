@@ -31,15 +31,15 @@ const currentUserQuery = gql`
   query currentUser($assigned: Boolean) {
     currentUser {
       id
-      tasks(where: {assigned: $assigned}) {
+      tasks(where: {assigned: $assigned, status_not: FINISHED}) {
         id
         taskMeta {
           title
           description
           priority
-          beginDate
-          endDate
         }
+        beginDate
+        endDate
         status
         notes {
           id

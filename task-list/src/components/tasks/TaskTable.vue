@@ -14,13 +14,13 @@
           </el-row>
           Start Date:
           <el-date-picker
-            v-model="task.taskMeta.beginDate"
+            v-model="task.beginDate"
             type="date"
             readonly
             placeholder="Start Date"/>
           &nbsp;&nbsp; End Date:
           <el-date-picker
-            v-model="task.taskMeta.endDate"
+            v-model="task.endDate"
             type="date"
             readonly
             placeholder="Start Date"/>
