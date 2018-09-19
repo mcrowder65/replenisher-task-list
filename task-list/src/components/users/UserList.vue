@@ -65,12 +65,12 @@ const usersQuery = gql`
       email
       tasks(where: {assigned: true}) {
         id
+        beginDate
+        endDate
         taskMeta {
           title
           description
           priority
-          beginDate
-          endDate
         }
         status
         notes {

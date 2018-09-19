@@ -5,14 +5,20 @@ const moment = require('moment')
 const priority = ["LOW", "MEDIUM", "HIGH"]
 const orderTasks = (tasks) => {
   return tasks.sort((a,b) => {
-    priorityA = priority.indexOf(a.taskMeta.priority)
-    priorityB = priority.indexOf(b.taskMeta.priority)
+    let priorityA = priority.indexOf(a.taskMeta.priority)
+    let priorityB = priority.indexOf(b.taskMeta.priority)
     if (priorityA !== priorityB) return priorityA < priorityB
 
-    dateA = (new Date(a.taskMeta.endDate)) - (new Date(a.taskMeta.beginDate))
-    dateB = (new Date(b.taskMeta.endDate)) - (new Date(b.taskMeta.beginDate))
-    if (dateA !== dateB) return dateA < dateB
+    let startA = moment(a.beginDate)
+    let endA = moment(a.endDate)
+    let startB = moment(b.beginDate)
+    let endB = moment(b.endDate)
 
+    let today = moment()
+    let dueA = today.diff(endA, 'days')
+    let dueB = today.diff(endB, 'days')
+
+    if (dueA !== dueB) return dueA < dueB
     return a.taskMeta.title.localeCompare(b.taskMeta.title)
   })
 }
@@ -28,6 +34,7 @@ const updateMetaDates = async (meta, db) => {
   if (today.isBetween(start, end)) return // the meta has been updated to current time
   else if (duration > 0) { // duration > 0 means meta date is in past
     let newBeginDate = today.subtract(duration % meta.repeat, 'd').toDate()
+    if (start.diff(moment(newBeginDate), 'days') == 0) return
     let newEndDate = moment(newBeginDate).add(end.diff(start, 'days'), 'd').toDate()
     await db.mutation.updateTaskMeta({
       data: {
@@ -57,6 +64,7 @@ const updateMetaDates = async (meta, db) => {
               id: meta.id
             }
           },
+          assigned: meta.template !== null,
           beginDate: newBeginDate,
           endDate: newEndDate, 
           user: {

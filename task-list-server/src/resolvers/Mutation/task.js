@@ -72,18 +72,6 @@ const task = {
         id: args.id
       }
     }, "{ taskMeta { id }}")
-    if (task.status != args.status) {
-      ctx.db.mutation.createStatusStat({
-        data: {
-          status: task.status
-        },
-        taskMeta: {
-          connect: {
-            id: task.taskMeta.id
-          }
-        }
-      })
-    }
     return ctx.db.mutation.updateTask({
       where: {
         id: args.id,
