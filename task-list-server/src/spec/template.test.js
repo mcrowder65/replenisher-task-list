@@ -206,6 +206,8 @@ test.serial("template time should be updated to most recent reocurrance when que
       priority,
       repeat
     })
+    await client.request(templateQuery) // kick off reschedudling
+    sleep(600) // wait for rescheduling
     const {templates} = await client.request(templateQuery)
     let template = templates.find((template) => {return template.id === createTemplate.id})
     // date because of the add function is now the end date
@@ -232,6 +234,8 @@ test.serial("template time should be rescheduled correctly", async test => {
       priority,
       repeat
     })
+    await client.request(templateQuery) // kick off the rescheduling
+    sleep(600) // wait for 600 ms
     const {templates} = await client.request(templateQuery)
     let template = templates.find((template) => {return template.id === createTemplate.id})
     test.is((new Date(template.taskMeta.beginDate)).toDateString(), moment().toDate().toDateString())
@@ -240,3 +244,15 @@ test.serial("template time should be rescheduled correctly", async test => {
     test.fail(err)
   }
 })
+
+// sleep function for async processing I know this is dumb but not sure how to teset
+// when it has to be done in background
+async function init(){
+  await sleep(1000)
+}
+
+function sleep(ms){
+  return new Promise(resolve=>{
+      setTimeout(resolve,ms)
+  })
+}

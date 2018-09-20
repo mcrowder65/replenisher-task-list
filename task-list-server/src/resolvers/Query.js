@@ -101,11 +101,8 @@ const Query = {
     const id = getUserId(ctx)
     let user = await ctx.db.query.user({ where: { id } }, info)
     if (user.tasks) {
-      await createReocurringTasks(id, ctx.db)
-    }
-    user = await ctx.db.query.user({ where: { id } }, info)
-    if (user.tasks) {
       user.tasks = orderTasks(user.tasks)
+      createReocurringTasks(id, ctx.db)
     }
     return user
   },
@@ -150,7 +147,7 @@ const Query = {
     templates.forEach((template) => {
       updateMetaDates(template.taskMeta, ctx.db)
     })
-    return await ctx.db.query.templates(query,info)
+    return templates
   }
   
 }
