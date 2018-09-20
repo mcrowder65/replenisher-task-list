@@ -23,8 +23,11 @@ primsa deploy
 
 ```
 cd task-list
+yarn install
 yarn start
+
 cd ../task-list-server
+yarn install
 yarn start
 ```
 
@@ -39,6 +42,10 @@ The automated tests are run through a package called ava. Scripts have been set 
 yarn test
 ```
 
+## Other Notes
+In this application the tasks that have a repeat set are duplicated as scheduled. Templates with times set in the past will update to the current iteration of the task when assigned to a user. The reoccurring tasks are created when the tasks are queried which means a user would need to sign in to see a task. A cron job (or some event system) in a production environment could be set up to deliever tasks in another way. Status is kept on the task and a StatusStat is created in the model although it isn't being used currently.
+
 ## Built With
 * [VueJS](https://vuejs.org/) - Front end web framework
+* [ElementUI](http://element.eleme.io/#/en-US/component/installation) - Component framework
 * [Prisma](https://www.prisma.io/) - GraphQL NodeJS backend
