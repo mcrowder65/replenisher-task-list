@@ -15,7 +15,7 @@ npm install -g @vue-cli
 npm install -g prisma 
 npm install -g graphql-cli
 cd task-list-server/database
-run docker-compose up -d
+run docker-compose up -d # make sure docker daemon is running locally before this step
 primsa deploy
 ```
 
@@ -36,7 +36,7 @@ The database has been seeded with the admin account email: "admin@dev.com" and p
 
 ## Running the tests
 
-The automated tests are run through a package called ava. Scripts have been set up in the package.json for you. The tests start a local server running in the background, if for some reason the tests fail you will need to call the `cleanup-test` or `kill-server` command to stop it running (normally this is taken care of by the `test` command).
+The automated tests are run through a package called ava. Scripts have been set up in the package.json for you. The tests start a local server running in the background, if for some reason the tests fail you will need to call the `cleanup-test` or `kill-server` command to stop it running (normally this is taken care of by the `test` command). Make sure the local server isnt running before running tests.
 
 ```
 yarn test
