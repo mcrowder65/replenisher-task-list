@@ -206,18 +206,20 @@ export default {
         }
       })
         .then(() => {
+          // Change is used on the parent component to know when to refresh
+          // the data shown in the view
           this.$emit('change')
         })
     },
 
     updateStatus ({id, status}) {
       let index = this.status.indexOf(status)
-      if (index === this.status.length - 1) return
+      if (index === this.status.length - 1) return // don't update a completed task
       this.$apollo.mutate({
         mutation: updateTaskMutation,
         variables: {
           id,
-          status: this.status[(index + 1)]
+          status: this.status[(index + 1)] // grab the next status
         }
       })
         .then(() => {

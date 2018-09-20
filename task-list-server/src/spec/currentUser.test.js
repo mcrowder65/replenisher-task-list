@@ -57,7 +57,7 @@ test.serial("signup should create a new user and return a valid token", async te
         }
       })
       const {currentUser} = await clientWithValidToken.request(query)
-      if (currentUser.id) {
+      if (currentUser.id) { // If an id is present then the request succeeded
         test.pass()
       } else {
         test.fail('Couldnt retreive user info')

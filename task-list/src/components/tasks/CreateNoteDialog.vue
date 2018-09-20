@@ -63,9 +63,12 @@ export default {
   },
   methods: {
     clearError () {
+      // errors are controlled in the parent component as well
       this.$emit('clear-error')
     },
     confirm () {
+      // Emit a event to parent component with information needed
+      // to be able to creaete the new note
       this.$emit('confirm', this.noteTitle, this.noteText)
       this.noteTitle = ''
       this.noteText = ''

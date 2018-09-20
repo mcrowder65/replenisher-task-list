@@ -28,6 +28,8 @@ export default {
   },
   methods: {
     logout () {
+      // We are storing the auth_token in a cookie so when they logout we need
+      // to remove that cookie
       cookie.remove('auth_token')
       this.$router.replace('/login')
     }

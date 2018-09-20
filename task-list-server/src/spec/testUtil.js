@@ -27,7 +27,7 @@ const signupMutation = `
 
 const token = async (email, password, name) => {
   let token = ''
-  if (!name) {
+  if (!name) { // Login instead of signup
     const {login} = await (new GraphQLClient(url)).request(loginMutation, {
       email: email ? email : user.email,
       password: password ? password : user.password
@@ -44,6 +44,11 @@ const token = async (email, password, name) => {
   return token 
 }
 
+
+// This function will create a gql client that has a valid authentication
+// token. If no parameters are passed in it will use the default user seeded in the 
+// test database. If an email and password and no name is passed it will login with those
+// parameters. If a name is passed it will attempt to create a new user.
 const graphqlClient = async (email, password, name) => {
   return new GraphQLClient(url, {
     headers: {

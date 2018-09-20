@@ -27,6 +27,8 @@ import CreateTaskDialog from './CreateTaskDialog.vue'
 import { TableHeader, ActionButton } from '@/components/elements'
 import gql from 'graphql-tag'
 
+// In the query below we show the status_not Finished, we are only going to 
+// show tasks to the user in their lists that are not completed yet.
 const currentUserQuery = gql`
   query currentUser($assigned: Boolean) {
     currentUser {
@@ -107,6 +109,7 @@ export default {
         }
       })
         .then(() => {
+          // refetch to update after the mutation
           this.$apollo.queries.currentUser.refetch()
           this.showNewDialog = false
           this.error = ''

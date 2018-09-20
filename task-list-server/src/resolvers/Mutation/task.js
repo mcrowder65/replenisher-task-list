@@ -3,6 +3,8 @@ const { getUserId, isAdmin } = require('../../utils')
 const task = {
   async assignTask(parent, args, ctx, info) {
     isAdmin(ctx)
+    // Check to see if the user already has the task assigned to them
+    // to prevent duplicate assignings
     const tasks = await ctx.db.query.tasks({
       where: {
         taskMeta: {
@@ -13,9 +15,10 @@ const task = {
         }
       }
     }, info)
-    if (tasks.length > 0) {
-      return tasks[0]
+    if (tasks.length > 0) { 
+      return tasks[0] // just give back the task if it is a duplicate
     }
+    // Query the meta id to be able to assign it to the new task
     const meta = await ctx.db.query.taskMeta({
       where: {
         id: args.id

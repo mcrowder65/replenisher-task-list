@@ -27,19 +27,19 @@ const orderTasks = (tasks) => {
 }
 
 const updateMetaDates = async (meta, db) => {
-  if (meta.repeat <= 0) return
+  if (meta.repeat <= 0) return // Then the task never needs to be rescheduled
 
   let today = moment()
   let start = moment(meta.beginDate)
   let end = moment(meta.endDate)
-  let duration = today.diff(start, 'days')
+  let duration = today.diff(start, 'days') // How long ago the task started
 
   if (today.isBetween(start, end)) return // the meta has been updated to current time
   else if (duration > 0) { // duration > 0 means meta date is in past
     let newBeginDate = today.subtract(duration % meta.repeat, 'd').toDate()
     if (start.diff(moment(newBeginDate), 'days') == 0) return
     let newEndDate = moment(newBeginDate).add(end.diff(start, 'days'), 'd').toDate()
-    await db.mutation.updateTaskMeta({
+    await db.mutation.updateTaskMeta({ // update the template to have the new occurance times
       data: {
         beginDate: newBeginDate,
         endDate: newEndDate
@@ -49,6 +49,7 @@ const updateMetaDates = async (meta, db) => {
       }
     })
     // create a new task for all users who have this task meta
+    // first query the users who also have this task
     const users = await db.query.users({
       where: {
         tasks_some: {
@@ -58,7 +59,8 @@ const updateMetaDates = async (meta, db) => {
         }
       }
     })
-    const ids = users.map((user) => {return user.id})
+    // Grab all the ids from users found in query
+    const ids = users.map((user) => {return user.id}) 
     uniq(ids).forEach((id) => {
       db.mutation.createTask({
         data: {
@@ -67,7 +69,7 @@ const updateMetaDates = async (meta, db) => {
               id: meta.id
             }
           },
-          assigned: meta.template !== null,
+          assigned: meta.template !== null, // if there is a template then it was assigned
           beginDate: newBeginDate,
           endDate: newEndDate, 
           user: {
@@ -102,7 +104,7 @@ const Query = {
     let user = await ctx.db.query.user({ where: { id } }, info)
     if (user.tasks) {
       user.tasks = orderTasks(user.tasks)
-      createReocurringTasks(id, ctx.db)
+      createReocurringTasks(id, ctx.db) // check to see if any tasks need to reoccur
     }
     return user
   },
@@ -145,7 +147,7 @@ const Query = {
     }
     const templates = await ctx.db.query.templates(query,info)
     templates.forEach((template) => {
-      updateMetaDates(template.taskMeta, ctx.db)
+      updateMetaDates(template.taskMeta, ctx.db) // Update the dates (and tasks) for current templates queried if needed
     })
     return templates
   }
