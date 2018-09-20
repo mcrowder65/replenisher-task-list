@@ -44,4 +44,5 @@ In this application the tasks that have a repeat set are duplicated as scheduled
 
 ## Built With
 * [VueJS](https://vuejs.org/) - Front end web framework
+* [ElementUI](http://element.eleme.io/#/en-US/component/installation) - Component framework
 * [Prisma](https://www.prisma.io/) - GraphQL NodeJS backend
