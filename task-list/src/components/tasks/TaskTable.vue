@@ -37,7 +37,7 @@
             v-if="task.notes && task.notes.length > 0"
             :expand-row-keys="[task.notes[0].id]"
             :row-key="(item) => {return item.id}"
-            :data="task.notes.reverse()"
+            :data="task.notes"
             style="width: 100%">
             <el-table-column type="expand">
               <template slot-scope="props">
