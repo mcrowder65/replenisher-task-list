@@ -12,7 +12,7 @@ const task = {
           id: args.userId
         }
       }
-    })
+    }, info)
     if (tasks.length > 0) {
       return tasks[0]
     }
@@ -37,7 +37,7 @@ const task = {
           }
         }
       }
-    }) 
+    }, info) 
   },
 
   createTask(parent, args, ctx, info) {
@@ -62,7 +62,7 @@ const task = {
           }
         }
       }
-    })
+    },info)
   },
 
   async updateTask(parent, args, ctx, info) {
@@ -71,7 +71,7 @@ const task = {
       where: {
         id: args.id
       }
-    }, "{ taskMeta { id }}")
+    }, info)
     return ctx.db.mutation.updateTask({
       where: {
         id: args.id,
@@ -79,7 +79,7 @@ const task = {
       data: {
         status: args.status
       }
-    })
+    }, info)
   }
 }
 

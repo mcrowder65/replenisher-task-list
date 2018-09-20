@@ -5,12 +5,16 @@
     "debug": "nodemon -e js,graphql -x node --inspect -r dotenv/config src/index.js",
     "playground": "graphql playground",
     "dev": "npm-run-all --parallel start playground",
+
     "deploy-test": "prisma deploy -e .env_test",
-    "test-server": "nodemon -e js,graphql -x node -r dotenv/config src/index.js dotenv_config_path=.env_test &>/dev/null&",
+    "background-test-server": "nodemon -e js,graphql -x node -r dotenv/config src/index.js dotenv_config_path=.env_test &>/dev/null&",
+    "test-server": "nodemon -e js,graphql -x node -r dotenv/config src/index.js dotenv_config_path=.env_test",
     "ava": "ava",
     "delete-test": "prisma delete -e .env_test -f",
     "kill-server": "pkill -f nodemon",
-    "test": "npm-run-all deploy-test test-server ava kill-server delete-test"
+
+    "cleanup-test": "npm-run-all kill-server delete-test",
+    "test": "npm-run-all deploy-test background-test-server ava cleanup-test"
   },
   "dependencies": {
     "bcryptjs": "2.4.3",

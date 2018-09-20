@@ -7,6 +7,7 @@ const orderTasks = (tasks) => {
   return tasks.sort((a,b) => {
     let priorityA = priority.indexOf(a.taskMeta.priority)
     let priorityB = priority.indexOf(b.taskMeta.priority)
+    // First sort by priority
     if (priorityA !== priorityB) return priorityA < priorityB
 
     let startA = moment(a.beginDate)
@@ -14,10 +15,12 @@ const orderTasks = (tasks) => {
     let startB = moment(b.beginDate)
     let endB = moment(b.endDate)
 
+    // if priority is the same then sort by the task with the next (or past) due date
     let today = moment()
     let dueA = today.diff(endA, 'days')
     let dueB = today.diff(endB, 'days')
 
+    // Otherwise sort by the titles of the tasks
     if (dueA !== dueB) return dueA < dueB
     return a.taskMeta.title.localeCompare(b.taskMeta.title)
   })
@@ -89,7 +92,7 @@ const createReocurringTasks = async (userId, db) => {
     }
   })
   taskMetas.forEach(async (meta) => {
-    updateMetaDates(meta, db)
+    await updateMetaDates(meta, db)
   })
 }
 
@@ -98,8 +101,11 @@ const Query = {
     const id = getUserId(ctx)
     let user = await ctx.db.query.user({ where: { id } }, info)
     if (user.tasks) {
+      await createReocurringTasks(id, ctx.db)
+    }
+    user = await ctx.db.query.user({ where: { id } }, info)
+    if (user.tasks) {
       user.tasks = orderTasks(user.tasks)
-      createReocurringTasks(id, ctx.db)
     }
     return user
   },
@@ -128,7 +134,7 @@ const Query = {
 
   async templates(parent, args, ctx, info) {
     isAdmin(ctx)
-    const templates = await ctx.db.query.templates({
+    let query = {
       where: {
         taskMeta: {
           OR: [
@@ -139,11 +145,12 @@ const Query = {
       },
       orderBy: "id_DESC",
       first: 25
-    }, info)
+    }
+    const templates = await ctx.db.query.templates(query,info)
     templates.forEach((template) => {
       updateMetaDates(template.taskMeta, ctx.db)
     })
-    return templates
+    return await ctx.db.query.templates(query,info)
   }
   
 }

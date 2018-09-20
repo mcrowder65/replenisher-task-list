@@ -37,7 +37,7 @@ type TaskMeta {
   priority: Priority! @default(value: "LOW")
   beginDate: DateTime!
   endDate: DateTime!
-  repeat: Int!
+  repeat: Int! @default(value: "0")
   tasks: [Task!]! @relation(name: "MetaTasks")
   template: Template @relation(name: "TemplateTaskMeta")
 }

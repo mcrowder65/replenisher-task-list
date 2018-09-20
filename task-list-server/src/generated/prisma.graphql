@@ -1,5 +1,5 @@
-# source: http://localhost:4466/tasks/dev
-# timestamp: Tue Sep 18 2018 00:20:55 GMT-0600 (Mountain Daylight Time)
+# source: http://localhost:4466/tasks/test
+# timestamp: Wed Sep 19 2018 07:53:38 GMT-0600 (Mountain Daylight Time)
 
 type AggregateNote {
   count: Int!
@@ -858,7 +858,7 @@ input TaskMetaCreateInput {
   priority: Priority
   beginDate: DateTime!
   endDate: DateTime!
-  repeat: Int!
+  repeat: Int
   tasks: TaskCreateManyWithoutTaskMetaInput
   template: TemplateCreateOneWithoutTaskMetaInput
 }
@@ -884,7 +884,7 @@ input TaskMetaCreateWithoutTasksInput {
   priority: Priority
   beginDate: DateTime!
   endDate: DateTime!
-  repeat: Int!
+  repeat: Int
   template: TemplateCreateOneWithoutTaskMetaInput
 }
 
@@ -894,7 +894,7 @@ input TaskMetaCreateWithoutTemplateInput {
   priority: Priority
   beginDate: DateTime!
   endDate: DateTime!
-  repeat: Int!
+  repeat: Int
   tasks: TaskCreateManyWithoutTaskMetaInput
 }
 
