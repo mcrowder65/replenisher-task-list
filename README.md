@@ -23,8 +23,11 @@ primsa deploy
 
 ```
 cd task-list
+yarn install
 yarn start
+
 cd ../task-list-server
+yarn install
 yarn start
 ```
 
