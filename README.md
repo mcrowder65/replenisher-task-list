@@ -11,12 +11,12 @@ You need an up-to-date version of Docker to run Prisma locally. You can find ins
 ### Installing
 
 ```
-npm install -g @vue-cli
+npm install -g @vue/cli
 npm install -g prisma 
 npm install -g graphql-cli
 cd task-list-server/database
-run docker-compose up -d # make sure docker daemon is running locally before this step
-primsa deploy
+docker-compose up -d # make sure docker daemon is running locally before this step
+prisma deploy
 ```
 
 ## Running the application locally
